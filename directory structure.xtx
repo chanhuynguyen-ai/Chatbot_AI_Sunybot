@@ -42,10 +42,15 @@
 ├── gui
 │   ├── __init__.py
 │   ├── main.py
-│   └── __pycache__
-│       ├── __init__.cpython-38.pyc
-│       └── main.cpython-38.pyc
+│   ├── __pycache__
+│   │   ├── __init__.cpython-38.pyc
+│   │   └── main.cpython-38.pyc
+│   └── web
+│       ├── index.html
+│       ├── static
+│       └── templates
 ├── __init__.py
 ├── logs
 └── models
 
+12 directories, 41 files
