@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from typing import Optional   # <-- DÒNG QUAN TRỌNG
-from fastapi.responses import FileResponse
+from typing import Optional
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 import os
 
@@ -12,11 +12,19 @@ engine = ChatbotEngine()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WEB_DIR = os.path.join(BASE_DIR, "gui", "web")
-
+FAVICON_PATH = os.path.join(WEB_DIR, "static", "favicon.ico")
 # nếu bạn có folder static (ảnh/css/js)
 STATIC_DIR = os.path.join(WEB_DIR, "static")
 if os.path.isdir(STATIC_DIR):
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    if os.path.isfile(FAVICON_PATH):
+        return FileResponse(FAVICON_PATH)
+    # Không có icon thì trả 204 để trình duyệt khỏi kêu 404/500
+    return Response(status_code=204)
+
 
 @app.get("/")
 def index():
