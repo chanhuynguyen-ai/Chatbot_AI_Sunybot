@@ -2,9 +2,6 @@
 
 lệnh gọi cây thư mục:
 
-```bash
- tree -L 3
-```
 
 (elevator_env38) jetbanana@ubuntu:~/elevator_ai_project$ tree -L 3
 .
