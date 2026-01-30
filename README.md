@@ -2,6 +2,11 @@
 chatbot sử dụng LLM và MySQL sử dụng Embedding để hiểu ngữ nghĩa chạy song song LLM và truy xuất dữ liệu database
 Sử dụng hệ điều hành Ubuntu 18.4
 
+Demo giao diện GUI chạy trên http:
+
+<img width="1005" height="746" alt="image" src="https://github.com/user-attachments/assets/56b6d164-160b-4b0d-88e3-69ad70f93231" />
+
+
 Demo giao Diện GUI của chatbot:
 
 <img width="1002" height="652" alt="image" src="https://github.com/user-attachments/assets/ea1f99bd-350e-4dff-bae0-0bb693cc164a" />
