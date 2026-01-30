@@ -1,9 +1,20 @@
+#cấu trúc cây thư mục:
+
+lệnh gọi cây thư mục:
+
+```bash
+ tree -L 3
+```
+
+(elevator_env38) jetbanana@ubuntu:~/elevator_ai_project$ tree -L 3
 .
 ├── backend
 │   ├── api.py
 │   ├── build_embeddings.py
+│   ├── build_embeddings.py.save
 │   ├── chatbot_engine (copy).py
 │   ├── chatbot_engine.py
+│   ├── chatbot_engine.py.save
 │   ├── embedding_service.py
 │   ├── employee_service.py
 │   ├── __init__.py
@@ -35,6 +46,7 @@
 │       ├── db_config.cpython-38.pyc
 │       ├── __init__.cpython-36.pyc
 │       └── __init__.cpython-38.pyc
+├── -d
 ├── database
 │   ├── remove_vietnamese_accent.py
 │   ├── schema.sql
@@ -53,4 +65,4 @@
 ├── logs
 └── models
 
-12 directories, 41 files
+12 directories, 44 files
