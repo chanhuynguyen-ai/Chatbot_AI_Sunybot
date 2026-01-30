@@ -1,8 +1,5 @@
 #cấu trúc cây thư mục:
 
-lệnh gọi cây thư mục:
-
-
 (elevator_env38) jetbanana@ubuntu:~/elevator_ai_project$ tree -L 3
 .
 ├── backend
