@@ -26,5 +26,5 @@ python3 -m gui.main
 ```
 lệnh chạy API chatbot:
 ```bash
-python -m uvicorn backend.api:app --host 0.0.0.0 --port 8000 --reload
+uvicorn backend.api:app --host 0.0.0.0 --port 8000
 ```
