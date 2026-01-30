@@ -66,7 +66,7 @@ class ChatbotEngine:
             return {"answer": ans, "source": "DB_PROMPT", "intent": intent_name, "confidence": conf}
 
         # 4) LLM fallback
-        llm_ans = self.ollama.chat(q, timeout_sec=12)
+        llm_ans = self.ollama.chat(q, timeout_sec=60) #dat thoi gian cho chatbot
         if llm_ans == FALLBACK_TEXT:
             self.log_chat(q, "fallback", 0.0, "FALLBACK", llm_ans)
             return {"answer": llm_ans, "source": "FALLBACK", "confidence": 0.0}
