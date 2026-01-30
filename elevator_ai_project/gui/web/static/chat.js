@@ -1,21 +1,27 @@
-async function send() {
-  const msg = document.getElementById("msg").value;
-  if (!msg) return;
+async function sendMessage() {
+    const input = document.getElementById("user-input");
+    const message = input.value.trim();
+    if (!message) return;
 
-  addMessage("Bạn", msg);
+    appendMessage("👤 Bạn: " + message, "user");
+    input.value = "";
 
-  const res = await fetch("http://localhost:8000/chat", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({question: msg})
-  });
+    const res = await fetch("/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({question: message})
+    });
 
-  const data = await res.json();
-  addMessage("Bot", data.answer);
+    const data = await res.json();
+    appendMessage(data.answer, "bot");
 }
 
-function addMessage(sender, text) {
-  const box = document.getElementById("chat-box");
-  box.innerHTML += `<p><b>${sender}:</b> ${text}</p>`;
+function appendMessage(text, cls) {
+    const chatBox = document.getElementById("chat-box");
+    const div = document.createElement("div");
+    div.className = "message " + cls;
+    div.innerText = text;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
 }
 

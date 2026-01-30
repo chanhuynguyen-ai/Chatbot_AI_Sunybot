@@ -1,27 +1,26 @@
+# backend/ollama_service.py
+import os
 import requests
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL = "deepseek-r1:1.5b"
+OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+LLM_MODEL = os.getenv("LLM_MODEL", "deepseek-r1:1.5b")
 
-def ollama_answer(question: str) -> str:
-    prompt = f"""
-Bạn là trợ lý AI. 
-Tên của bạn là Sunybot
-Hãy trả lời bằng TIẾNG VIỆT KHÔNG DẤU.
-không trả lời bằng tiếng khác ".
+FALLBACK_TEXT = "Sunybot hien khong the tra loi cau hoi, vui long tra loi cau hoi lien quan"
 
-Cau hoi: {question}
-"""
-
-    payload = {
-        "model": MODEL,
-        "prompt": prompt,
-        "stream": False
-    }
-
-    try:
-        res = requests.post(OLLAMA_URL, json=payload, timeout=60)
-        return res.json()["response"].strip()
-    except:
-        return "He thong LLM tam thoi khong san sang"
+class OllamaService:
+    def chat(self, user_text: str, timeout_sec: int = 12) -> str:
+        url = f"{OLLAMA_HOST}/api/generate"
+        payload = {
+            "model": LLM_MODEL,
+            "prompt": user_text,
+            "stream": False
+        }
+        try:
+            r = requests.post(url, json=payload, timeout=timeout_sec)
+            r.raise_for_status()
+            data = r.json()
+            ans = (data.get("response") or "").strip()
+            return ans if ans else FALLBACK_TEXT
+        except Exception:
+            return FALLBACK_TEXT
 
