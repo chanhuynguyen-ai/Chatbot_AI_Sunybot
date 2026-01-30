@@ -11,7 +11,9 @@
 │   ├── chatbot_engine.py.save
 │   ├── embedding_service.py
 │   ├── employee_service.py
+│   ├── from
 │   ├── __init__.py
+│   ├── logger.py
 │   ├── ollama_service.py
 │   ├── __pycache__
 │   │   ├── api.cpython-38.pyc
@@ -23,14 +25,17 @@
 │   │   ├── employee_service.cpython-38.pyc
 │   │   ├── __init__.cpython-36.pyc
 │   │   ├── __init__.cpython-38.pyc
+│   │   ├── logger.cpython-38.pyc
 │   │   ├── ollama_service.cpython-38.pyc
 │   │   ├── schemas.cpython-38.pyc
 │   │   ├── semantic_matcher.cpython-38.pyc
 │   │   ├── test_chatbot.cpython-36.pyc
-│   │   └── test_chatbot.cpython-38.pyc
+│   │   ├── test_chatbot.cpython-38.pyc
+│   │   └── text_utils.cpython-38.pyc
 │   ├── schemas.py
 │   ├── semantic_matcher.py
-│   └── test_chatbot.py
+│   ├── test_chatbot.py
+│   └── text_utils.py
 ├── config
 │   ├── db_config.py
 │   ├── db_config.py.save
@@ -42,6 +47,8 @@
 │       └── __init__.cpython-38.pyc
 ├── -d
 ├── database
+│   ├── __pycache__
+│   │   └── remove_vietnamese_accent.cpython-38.pyc
 │   ├── remove_vietnamese_accent.py
 │   ├── schema.sql
 │   └── seed.sql
@@ -57,6 +64,8 @@
 │       └── templates
 ├── __init__.py
 ├── logs
-└── models
+│   └── sunybot.log
+├── models
+└── packages.microsoft.gpg
 
-12 directories, 44 files
+13 directories, 52 files
