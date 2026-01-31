@@ -33,7 +33,7 @@ class ChatbotEngine:
     def handle(self, user_text: str) -> Dict[str, Any]:
         q = (user_text or "").strip()
         if not q:
-            return {"answer": "Ban vui long nhap cau hoi.", "source": "SYSTEM"}
+            return {"answer": "Bạn vui lòng nhập câu hỏi.", "source": "SYSTEM"}
 
         # 1) Employee by code
         if is_employee_code(q):
@@ -43,7 +43,7 @@ class ChatbotEngine:
                 self.log_chat(q, "employee_lookup", 1.0, "EMPLOYEE", ans)
                 return {"answer": ans, "source": "EMPLOYEE", "confidence": 1.0}
             else:
-                ans = "Khong tim thay nhan vien voi ma nay."
+                ans = "Không tìm thấy nhân viên với mã này."
                 self.log_chat(q, "employee_lookup", 1.0, "EMPLOYEE", ans)
                 return {"answer": ans, "source": "EMPLOYEE", "confidence": 1.0}
 

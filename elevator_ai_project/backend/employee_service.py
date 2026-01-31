@@ -52,14 +52,14 @@ def find_employee_by_name(name: str):
 
 def format_employee_answer(emp: dict) -> str:
     return (
-        f"Thong tin nhan vien:\n"
-        f"- Ma: {emp.get('employee_code')}\n"
-        f"- Ho ten: {emp.get('full_name')}\n"
-        f"- Nam sinh: {emp.get('birth_year')}\n"
-        f"- Vi tri: {emp.get('position')}\n"
-        f"- Phong ban: {emp.get('department')}\n"
-        f"- Que quan: {emp.get('hometown')}\n"
-        f"- SDT: {emp.get('phone')}\n"
+        f"Thông tin nhân viên:\n"
+        f"- Mã nhân viên: {emp.get('employee_code')}\n"
+        f"- Họ và tên: {emp.get('full_name')}\n"
+        f"- Năm sinh: {emp.get('birth_year')}\n"
+        f"- Vị trí: {emp.get('position')}\n"
+        f"- Phòng ban: {emp.get('department')}\n"
+        f"- Quê quán: {emp.get('hometown')}\n"
+        f"- SĐt: {emp.get('phone')}\n"
         f"- Email: {emp.get('email')}"
     )
 

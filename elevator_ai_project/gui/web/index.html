@@ -87,7 +87,7 @@ async function send() {
     const meta = `source=${data.source}` + (data.intent ? ` • intent=${data.intent}` : "") + (data.confidence != null ? ` • conf=${data.confidence.toFixed(3)}` : "");
     addMsg("bot", data.answer, meta);
   } catch(e) {
-    addMsg("bot", "Sunybot hien khong the tra loi cau hoi, vui long tra loi cau hoi lien quan", "source=FALLBACK");
+    addMsg("bot", "Sunybot hiện không thể trả lời câu hỏi", "source=FALLBACK");
   } finally {
     btn.disabled = false;
     input.focus();
@@ -97,7 +97,7 @@ async function send() {
 btn.addEventListener("click", send);
 input.addEventListener("keydown", (e)=>{ if(e.key==="Enter") send(); });
 
-addMsg("bot", "xin chao toi la sunybot, toi co the giup gi cho ban", "source=DB_PROMPT");
+addMsg("bot", "Sunybot xin chào, tôi có thể giúp gì cho bạn", "source=DB_PROMPT");
 </script>
 </body>
 </html>

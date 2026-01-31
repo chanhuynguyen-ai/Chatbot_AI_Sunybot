@@ -6,7 +6,7 @@ import requests
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 LLM_MODEL = os.getenv("LLM_MODEL", "deepseek-r1:1.5b")
 
-FALLBACK_TEXT = "Sunybot hien khong the tra loi cau hoi, vui long tra loi cau hoi lien quan"
+FALLBACK_TEXT = "Sunybot hiện không thể trả lời câu hỏi này, vui lòng nhập câu hỏi khác"
 
 class OllamaService:
     def generate(self, prompt: str, connect_timeout: int = 3, read_timeout: int = 120, retries: int = 1) -> str:
