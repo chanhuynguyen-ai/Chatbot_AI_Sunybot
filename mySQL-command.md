@@ -1,3 +1,9 @@
+"host": "localhost",
+"user": "elevator_ai",
+"password": "elevator123",
+"database": "elevator_ai",
+"charset": "utf8mb4"
+
 #Lệnh code database trong mysql:
 
 Vào MySQL
@@ -70,6 +76,14 @@ JOIN answers a ON i.intent_id = a.intent_id;
 
 ```
 check local host:
+```bash
+
+SELECT user, host FROM mysql.user;
+
+```
+
+Lệnh kiểm tra TẤT CẢ prompt thuộc intent greeting
+
 ```bash
 
 SELECT 
