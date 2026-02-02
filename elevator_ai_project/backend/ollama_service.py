@@ -4,61 +4,71 @@ import time
 import requests
 
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-LLM_MODEL = os.getenv("LLM_MODEL", "deepseek-r1:1.5b")
+LLM_MODEL = os.getenv("LLM_MODEL", "qwen2.5:1.5b-instruct")
 
-FALLBACK_TEXT = "Sunybot hiện không thể trả lời câu hỏi này, vui lòng nhập câu hỏi khác"
+FALLBACK_TEXT = "Sunybot hiện không thể trả lời câu hỏi này."
 
 class OllamaService:
-    def generate(self, prompt: str, connect_timeout: int = 3, read_timeout: int = 120, retries: int = 1) -> str:
-        """
-        connect_timeout: thời gian bắt tay TCP (nên ngắn)
-        read_timeout: thời gian chờ model trả xong (nên dài)
-        """
+
+    def _build_prompt(self, user_text: str) -> str:
+        # PROMPT CỰC NGẮN – TỐI ƯU TỐC ĐỘ
+        return (
+            "Bạn là Sunybot, chatbot thang máy. "
+            "Trả lời ngắn gọn bằng tiếng Việt (1 câu).\n"
+            f"Câu hỏi: {user_text}\n"
+            "Trả lời:"
+        )
+
+    def generate(
+        self,
+        user_text: str,
+        connect_timeout: int = 3,
+        read_timeout: int = 40,
+        retries: int = 0
+    ) -> str:
+
         url = f"{OLLAMA_HOST}/api/generate"
+        prompt = self._build_prompt(user_text)
+
         payload = {
             "model": LLM_MODEL,
             "prompt": prompt,
             "stream": False,
-            # Tuỳ chọn để nhanh hơn (bạn có thể bỏ):
             "options": {
-                "num_predict": 256,     # giới hạn số token sinh ra
-                "temperature": 0.7
+                "num_predict": 35,   # ⬅ GIẢM MẠNH #phần điều chỉnh chiều dài của token 
+                "num_ctx": 512,
+                "temperature": 0.3,
+                "top_p": 0.7
             }
         }
 
-        last_err = None
-        for attempt in range(retries + 1):
-            try:
-                r = requests.post(url, json=payload, timeout=(connect_timeout, read_timeout))
-                # nếu ollama trả lỗi JSON kiểu {"error": "..."}
-                if r.status_code != 200:
-                    last_err = f"HTTP {r.status_code}: {r.text[:200]}"
-                    time.sleep(0.5)
-                    continue
+        try:
+            r = requests.post(
+                url,
+                json=payload,
+                timeout=(connect_timeout, read_timeout)
+            )
 
-                data = r.json()
-                if "error" in data:
-                    last_err = f"Ollama error: {data.get('error')}"
-                    time.sleep(0.5)
-                    continue
+            if r.status_code != 200:
+                return FALLBACK_TEXT
 
-                ans = (data.get("response") or "").strip()
-                if ans:
-                    return ans
+            data = r.json()
+            ans = (data.get("response") or "").strip()
 
-                last_err = "Empty response"
-                time.sleep(0.5)
+            if not ans:
+                return FALLBACK_TEXT
 
-            except Exception as e:
-                last_err = repr(e)
-                time.sleep(0.5)
+            # CẮT PHÒNG HỜ – 1 CÂU
+            ans = ans.replace("\n", " ")
+            if "." in ans:
+                ans = ans.split(".")[0] + "."
 
-        # In ra warning để bạn nhìn log terminal biết lỗi thật
-        print(f"[OLLAMA_WARN] generate failed: {last_err}")
-        return FALLBACK_TEXT
+            return ans
 
-    # giữ tương thích nếu engine đang gọi .chat()
-    def chat(self, user_text: str, timeout_sec: int = 120) -> str:
-        # Bạn muốn giảm ràng buộc: OK — gửi thẳng user_text cho model
-        return self.generate(user_text, read_timeout=timeout_sec, retries=1)
+        except Exception as e:
+            print(f"[OLLAMA_ERR] {e}")
+            return FALLBACK_TEXT
+
+    def chat(self, user_text: str, timeout_sec: int = 40) -> str:
+        return self.generate(user_text, read_timeout=timeout_sec)
 
