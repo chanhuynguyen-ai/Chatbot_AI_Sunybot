@@ -1,7 +1,7 @@
-GUI (Web Browser)
-   ↓ HTTP JSON
-FastAPI (backend/api.py)
-   ↓
-Chatbot Engine (backend/chatbot_engine.py)
-   ↓
-Ollama / LLM / Embedding / DB
+[Frontend GUI (Web)]
+        ↓ HTTP/JSON
+[Backend API (FastAPI)]
+        ↓
+[Chatbot Engine]
+        ↓
+[Database + Embedding + LLM (Ollama)]
