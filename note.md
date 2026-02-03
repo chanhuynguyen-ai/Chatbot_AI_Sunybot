@@ -33,3 +33,7 @@ test ollama terminal:
 curl -s http://localhost:11434/api/generate \
   -d '{"model":"deepseek-r1:1.5b","prompt":"Do you think Loc is pretty?","stream":false}' | head
 ```
+
+```bash
+cloudflared tunnel --url http://localhost:8000
+```
