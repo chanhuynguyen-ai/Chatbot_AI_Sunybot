@@ -127,10 +127,10 @@ VALUES
 (
     'NV181',
     'Lê Thị Nghi Lộc',
-    2004,
-    'Kỹ sư vận hành',
-    'Kỹ thuật',
-    'TP. Hồ Chí Minh',
+    2003,
+    'Ny kỹ sư',
+    'công chúa',
+    'Hà Tĩnh',
     '0909123456',
     'nghiloc@company.com',
     NULL
