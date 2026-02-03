@@ -1,3 +1,4 @@
+#tổng quan cấu trúc đề tài
 [Frontend GUI (Web)]
         ↓ HTTP/JSON
 [Backend API (FastAPI)]
@@ -5,3 +6,14 @@
 [Chatbot Engine]
         ↓
 [Database + Embedding + LLM (Ollama)]
+
+#cấu trúc frontend:
+gui/
+├── main.py               # (tuỳ chọn) launcher GUI
+└── web/
+    ├── index.html        # Giao diện chat chính
+    ├── static/
+    │   ├── favicon.ico   # Icon web
+    │   ├── css / js / img (nếu mở rộng)
+    └── templates/        # (chưa dùng)
+#cấu trúc backend:
