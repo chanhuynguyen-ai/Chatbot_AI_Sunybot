@@ -12,7 +12,9 @@ lệnh khai báo thư viện:
 ```bash
 source elevator_env38/bin/activate
 ```
-
+```bash
+source ~/venvs/sunybot_jetson/bin/activate
+```
 ```bash
 cd ~/elevator_ai_project
 ```
