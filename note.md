@@ -9,9 +9,11 @@ python3 -m backend.build_embeddings
 lệnh chạy chatbot:
 
 lệnh khai báo thư viện:
+Ubuntu:
 ```bash
 source elevator_env38/bin/activate
 ```
+Jetson:
 ```bash
 source ~/venvs/sunybot_jetson/bin/activate
 ```
@@ -25,6 +27,10 @@ python3 -m backend.test_chatbot
 lệnh chạy GUI chatbot:
 ```bash
 python3 -m gui.main
+```
+lệnh chạy GUI quản lý database:
+```bash
+python mysql_admin_gui_pk.py
 ```
 lệnh chạy API chatbot:
 ```bash
