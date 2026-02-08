@@ -9,10 +9,12 @@ python3 -m backend.build_embeddings
 lệnh chạy chatbot:
 
 lệnh khai báo thư viện:
+
 Ubuntu:
 ```bash
 source elevator_env38/bin/activate
 ```
+
 Jetson:
 ```bash
 source ~/venvs/sunybot_jetson/bin/activate
