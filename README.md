@@ -2,6 +2,10 @@
 chatbot sử dụng LLM và MySQL sử dụng Embedding để hiểu ngữ nghĩa chạy song song LLM và truy xuất dữ liệu database
 Sử dụng hệ điều hành Ubuntu 18.4
 
+Demo giao diện hiện tại của Smart Elevator:
+
+<img width="1622" height="972" alt="image" src="https://github.com/user-attachments/assets/8a3698ea-e9aa-40c5-9c15-4b8061f7d900" />
+
 Demo giao diện GUI chạy trên http:
 
 <img width="1005" height="746" alt="image" src="https://github.com/user-attachments/assets/56b6d164-160b-4b0d-88e3-69ad70f93231" />
