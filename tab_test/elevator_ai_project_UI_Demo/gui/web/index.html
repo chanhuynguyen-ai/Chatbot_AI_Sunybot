@@ -1,4 +1,4 @@
-﻿
+
 <!doctype html>
 <html lang="vi">
 <head>
@@ -957,378 +957,443 @@
     </section>
   </div>
 
-  <script>
-    // ===== NAV =====
-    const navButtons = document.querySelectorAll(".nav-btn");
-    navButtons.forEach(btn => btn.addEventListener("click", () => {
-      navButtons.forEach(b => b.classList.remove("active"));
+<script>
+  // ===== UTILITIES =====
+  const $id = (id) => document.getElementById(id);
+  const setText = (el, value) => { if(el) el.textContent = value; };
+  const nowHHMM = () => {
+    const d = new Date();
+    return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  };
+  const speak = (text) => {
+    if(!window.speechSynthesis) return;
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "vi-VN";
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utter);
+  };
+
+  // ===== UI STATE =====
+  const ui = {
+    navButtons: Array.from(document.querySelectorAll(".nav-btn")),
+    screens: Array.from(document.querySelectorAll(".screen")),
+    botShell: $id("botShell"),
+    botShellChat: $id("botShellChat"),
+    botMode: $id("botMode"),
+    botModeChat: $id("botModeChat"),
+    stateHome: $id("state"),
+    stateChat: $id("stateChat"),
+    chatMessages: $id("chatMessages"),
+    chatInput: $id("chatInput"),
+    weather: $id("weather"),
+    tbWeather: $id("tb_weather"),
+    tbTime: $id("tb_time"),
+    tbPeople: $id("tb_people"),
+    sosTime: $id("sosTime"),
+    sosStatus: $id("sosStatus"),
+    maintLogin: $id("maint-login"),
+    maintDashboard: $id("maint-dashboard")
+  };
+
+  // ===== NAV =====
+  function initNav(){
+    ui.navButtons.forEach(btn => btn.addEventListener("click", () => {
+      ui.navButtons.forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       const target = btn.getAttribute("data-screen");
-      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-      document.getElementById(`screen-${target}`).classList.add("active");
+      ui.screens.forEach(s => s.classList.remove("active"));
+      const screen = $id(`screen-${target}`);
+      if(screen) screen.classList.add("active");
     }));
+  }
 
-    // ===== TOP BAR =====
-    function hhmm(){
-      const d = new Date();
-      return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
-    }
-    document.getElementById("tb_time").textContent = hhmm();
-    setInterval(()=>{ document.getElementById("tb_time").textContent = hhmm(); }, 1000);
+  // ===== TOP BAR =====
+  function startTopbarClock(){
+    setText(ui.tbTime, nowHHMM());
+    setInterval(() => setText(ui.tbTime, nowHHMM()), 1000);
+  }
 
-    // ===== STATUS API =====
-    async function updateStatus(){
-      try{
-        const r = await fetch("/api/elevator/status");
-        const s = await r.json();
+  // ===== STATUS API =====
+  async function updateStatus(){
+    try{
+      const r = await fetch("/api/elevator/status");
+      const s = await r.json();
 
-        document.getElementById("floor").textContent = s.floor ?? "--";
-        document.getElementById("clock").textContent = s.time ?? "--:--:--";
-        document.getElementById("people").textContent = s.people_count ?? "--";
-        document.getElementById("door").textContent = s.door ?? "--";
-        const tbPeople = document.getElementById("tb_people");
-        if(tbPeople) tbPeople.textContent = s.people_count ?? "--";
+      setText($id("floor"), s.floor ?? "--");
+      setText($id("clock"), s.time ?? "--:--:--");
+      setText($id("people"), s.people_count ?? "--");
+      setText($id("door"), s.door ?? "--");
+      setText(ui.tbPeople, s.people_count ?? "--");
 
-        const dir = s.direction || "--";
-        document.getElementById("direction").textContent =
-          dir==="UP" ? "↑ Lên" : dir==="DOWN" ? "↓ Xuống" : "Đứng";
+      const dir = s.direction || "--";
+      setText($id("direction"), dir === "UP" ? "↑ Lên" : dir === "DOWN" ? "↓ Xuống" : "Đứng");
 
-        const ol = document.getElementById("overload");
+      const ol = $id("overload");
+      if(ol){
         if(s.overload){
-          ol.textContent="QUÁ TẢI";
-          ol.className="badge err";
+          ol.textContent = "QUÁ TẢI";
+          ol.className = "badge err";
         }else{
-          ol.textContent="Bình thường";
-          ol.className="badge ok";
+          ol.textContent = "Bình thường";
+          ol.className = "badge ok";
         }
+      }
 
-        document.getElementById("maintFloor").textContent = s.floor ?? "--";
-        document.getElementById("maintDirection").textContent = dir;
-        document.getElementById("maintDoor").textContent = s.door ?? "--";
-        document.getElementById("maintPeople").textContent = s.people_count ?? "--";
-        document.getElementById("maintTime").textContent = hhmm();
-        document.getElementById("sosStatus").textContent = `Trạng thái: ${s.door ?? "--"}`;
-      }catch(e){}
-    }
+      setText($id("maintFloor"), s.floor ?? "--");
+      setText($id("maintDirection"), dir);
+      setText($id("maintDoor"), s.door ?? "--");
+      setText($id("maintPeople"), s.people_count ?? "--");
+      setText($id("maintTime"), nowHHMM());
+      setText(ui.sosStatus, `Trạng thái: ${s.door ?? "--"}`);
+    }catch(_){}
+  }
+
+  function startStatusPolling(){
     updateStatus();
     setInterval(updateStatus, 1000);
+  }
 
-    // ===== WEATHER =====
-    async function updateWeather(){
-      try{
-        const r = await fetch("/api/weather");
-        const w = await r.json();
-        const text = `${w.text} ${w.temp}°C`;
-        const weather = document.getElementById("weather");
-        if(weather) weather.textContent = text;
-        const topWeather = document.getElementById("tb_weather");
-        if(topWeather) topWeather.textContent = text;
-      }catch(e){
-        const weather = document.getElementById("weather");
-        if(weather) weather.textContent = "--";
-        const topWeather = document.getElementById("tb_weather");
-        if(topWeather) topWeather.textContent = "--";
-      }
+  // ===== WEATHER =====
+  async function updateWeather(){
+    try{
+      const r = await fetch("/api/weather");
+      const w = await r.json();
+      const text = `${w.text} ${w.temp}°C`;
+      setText(ui.weather, text);
+      setText(ui.tbWeather, text);
+    }catch(_){
+      setText(ui.weather, "--");
+      setText(ui.tbWeather, "--");
     }
+  }
+
+  function startWeatherPolling(){
     updateWeather();
-    setInterval(updateWeather, 10*60*1000);
+    setInterval(updateWeather, 10 * 60 * 1000);
+  }
 
-    // ===== SOS =====
-    function updateSOSTime(){
-      const d = new Date();
-      document.getElementById("sosTime").textContent = d.toLocaleTimeString("vi-VN");
+  // ===== SOS =====
+  function startSOSTime(){
+    const tick = () => setText(ui.sosTime, new Date().toLocaleTimeString("vi-VN"));
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  async function sendSOS(){
+    try{
+      await fetch("/api/sos", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+          elevator:"A",
+          time: new Date().toISOString(),
+          floor: $id("floor")?.textContent ?? "--",
+          status: $id("door")?.textContent ?? "--"
+        })
+      });
+      showToast("Đã gửi tín hiệu SOS");
+    }catch(_){
+      showToast("Không thể gửi SOS");
     }
-    updateSOSTime();
-    setInterval(updateSOSTime, 1000);
+  }
 
-    async function sendSOS(){
-      updateSOSTime();
-      try{
-        await fetch("/api/sos", {
-          method:"POST",
-          headers:{"Content-Type":"application/json"},
-          body: JSON.stringify({
-            elevator:"A",
-            time: new Date().toISOString(),
-            floor: document.getElementById("floor").textContent,
-            status: document.getElementById("door").textContent
-          })
-        });
-        showToast("Đã gửi tín hiệu SOS");
-      }catch(e){
-        showToast("Không thể gửi SOS");
+  // ===== CALL FLOOR =====
+  async function callFloor(floor, locked){
+    if(locked){
+      showToast("Tầng bị khóa. Cần xác thực.");
+      return;
+    }
+    try{
+      await fetch("/api/elevator/call", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ floor })
+      });
+      showToast(`Đã gọi tầng ${floor}`);
+    }catch(_){
+      showToast("Không thể gọi tầng");
+    }
+  }
+
+  async function confirmCall(floor){
+    await callFloor(floor, false);
+  }
+
+  // ===== BOT STATE =====
+  function setBotMode(mode){
+    if(!ui.botShell || !ui.botMode) return;
+    ui.botShell.classList.remove("listening","speaking");
+    if(mode === "listening"){
+      ui.botShell.classList.add("listening");
+      ui.botMode.textContent = "Chế độ: Đang nghe";
+    }else if(mode === "speaking"){
+      ui.botShell.classList.add("speaking");
+      ui.botMode.textContent = "Chế độ: Đang trả lời";
+    }else{
+      ui.botMode.textContent = "Chế độ: Bình thường";
+    }
+  }
+
+  function setBotModeChat(mode){
+    if(!ui.botShellChat || !ui.botModeChat) return;
+    ui.botShellChat.classList.remove("listening","speaking");
+    if(mode === "listening"){
+      ui.botShellChat.classList.add("listening");
+      ui.botModeChat.textContent = "Chế độ: Đang nghe";
+    }else if(mode === "speaking"){
+      ui.botShellChat.classList.add("speaking");
+      ui.botModeChat.textContent = "Chế độ: Đang trả lời";
+    }else{
+      ui.botModeChat.textContent = "Chế độ: Bình thường";
+    }
+  }
+
+  function setState(text){ setText(ui.stateHome, text); }
+
+  // ===== WAKE WORD =====
+  let recWake = null;
+  let recChat = null;
+
+  function createSpeechRecognition(){
+    return window.SpeechRecognition || window.webkitSpeechRecognition;
+  }
+
+  function enableWake(){
+    const SpeechRecognition = createSpeechRecognition();
+    if(!SpeechRecognition){
+      setState("Không hỗ trợ STT trên trình duyệt này.");
+      return;
+    }
+
+    recWake = new SpeechRecognition();
+    recWake.lang = "vi-VN";
+    recWake.continuous = true;
+    recWake.interimResults = true;
+
+    recWake.onstart = () => {
+      setBotMode("listening");
+      setState("Đang nghe wake word…");
+    };
+
+    recWake.onerror = () => {
+      setBotMode("idle");
+      setState("Mic lỗi — tự khôi phục...");
+      setTimeout(() => { try{ recWake.start(); }catch(_){ } }, 800);
+    };
+
+    recWake.onend = () => {
+      setBotMode("idle");
+      setTimeout(() => { try{ recWake.start(); }catch(_){ } }, 350);
+    };
+
+    let lastFinal = "";
+    recWake.onresult = async (ev) => {
+      let transcript = "";
+      for(let i=ev.resultIndex; i<ev.results.length; i++){
+        transcript += ev.results[i][0].transcript;
       }
-    }
+      transcript = transcript.trim().toLowerCase();
 
-    // ===== CALL FLOOR =====
-    async function callFloor(floor, locked){
-      if(locked){
-        showToast("Tầng bị khóa. Cần xác thực.");
-        return;
-      }
-      try{
-        await fetch("/api/elevator/call", {
-          method:"POST",
-          headers:{"Content-Type":"application/json"},
-          body: JSON.stringify({ floor })
-        });
-        showToast(`Đã gọi tầng ${floor}`);
-      }catch(e){
-        showToast("Không thể gọi tầng");
-      }
-    }
+      const last = ev.results[ev.results.length-1];
+      if(last && last.isFinal){
+        if(transcript === lastFinal) return;
+        lastFinal = transcript;
 
-    async function confirmCall(floor){
-      await callFloor(floor, false);
-    }
+        if(transcript.includes("hey sunybot") || transcript.includes("hey sunnybot")){
+          const after = transcript
+            .replace("hey sunybot","")
+            .replace("hey sunnybot","")
+            .trim();
 
-    // ===== BOT STATE =====
-    function setBotMode(mode){
-      const bot = document.getElementById("botShell");
-      const label = document.getElementById("botMode");
-      bot.classList.remove("listening","speaking");
-      if(mode==="listening"){
-        bot.classList.add("listening");
-        label.textContent = "Chế độ: Đang nghe";
-      }else if(mode==="speaking"){
-        bot.classList.add("speaking");
-        label.textContent = "Chế độ: Đang trả lời";
-      }else{
-        label.textContent = "Chế độ: Bình thường";
-      }
-    }
+          if(!after){
+            setState("Đã kích hoạt. Hãy nói câu lệnh...");
+            return;
+          }
 
-    function setBotModeChat(mode){
-      const bot = document.getElementById("botShellChat");
-      const label = document.getElementById("botModeChat");
-      bot.classList.remove("listening","speaking");
-      if(mode==="listening"){
-        bot.classList.add("listening");
-        label.textContent = "Chế độ: Đang nghe";
-      }else if(mode==="speaking"){
-        bot.classList.add("speaking");
-        label.textContent = "Chế độ: Đang trả lời";
-      }else{
-        label.textContent = "Chế độ: Bình thường";
-      }
-    }
+          setState("Đang xử lý: " + after);
+          setBotMode("speaking");
 
-    function speak(text){
-      if(!window.speechSynthesis) return;
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = "vi-VN";
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(utter);
-    }
-
-    // ===== WAKE WORD =====
-    let recWake = null;
-    let recChat = null;
-
-    function setState(t){ document.getElementById("state").textContent = t; }
-
-    async function enableWake(){
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if(!SpeechRecognition){
-        setState("Không hỗ trợ STT trên trình duyệt này.");
-        return;
-      }
-
-      recWake = new SpeechRecognition();
-      recWake.lang = "vi-VN";
-      recWake.continuous = true;
-      recWake.interimResults = true;
-
-      recWake.onstart = ()=>{
-        setBotMode("listening");
-        setState("Đang nghe wake word…");
-      };
-
-      recWake.onerror = ()=>{
-        setBotMode("idle");
-        setState("Mic lỗi — tự khôi phục...");
-        setTimeout(()=>{ try{ recWake.start(); }catch(_){} }, 800);
-      };
-
-      recWake.onend = ()=>{
-        setBotMode("idle");
-        setTimeout(()=>{ try{ recWake.start(); }catch(_){} }, 350);
-      };
-
-      let lastFinal = "";
-      recWake.onresult = async (ev)=>{
-        let transcript = "";
-        for(let i=ev.resultIndex; i<ev.results.length; i++){
-          transcript += ev.results[i][0].transcript;
-        }
-        transcript = transcript.trim().toLowerCase();
-
-        const last = ev.results[ev.results.length-1];
-        if(last && last.isFinal){
-          if(transcript === lastFinal) return;
-          lastFinal = transcript;
-
-          if(transcript.includes("hey sunybot") || transcript.includes("hey sunnybot")){
-            const after = transcript
-              .replace("hey sunybot","")
-              .replace("hey sunnybot","")
-              .trim();
-
-            if(!after){
-              setState("Đã kích hoạt. Hãy nói câu lệnh...");
-              return;
-            }
-
-            setState("Đang xử lý: " + after);
-            setBotMode("speaking");
-
-            try{
-              const r = await fetch("/chat", {
-                method:"POST",
-                headers:{ "Content-Type":"application/json" },
-                body: JSON.stringify({ message: after })
-              });
-              const data = await r.json();
-              const answer = data.answer ? data.answer : "...";
-              setState("Sunybot: " + answer);
-              speak(answer);
-            }catch(e){
-              setState("Sunybot hiện không thể trả lời.");
-            }finally{
-              setBotMode("listening");
-            }
+          try{
+            const r = await fetch("/chat", {
+              method:"POST",
+              headers:{ "Content-Type":"application/json" },
+              body: JSON.stringify({ message: after })
+            });
+            const data = await r.json();
+            const answer = data.answer ? data.answer : "...";
+            setState("Sunybot: " + answer);
+            speak(answer);
+          }catch(_){
+            setState("Sunybot hiện không thể trả lời.");
+          }finally{
+            setBotMode("listening");
           }
         }
-      };
-
-      try{ recWake.start(); }catch(e){}
-    }
-
-    // ===== CHAT SCREEN =====
-    function appendMessage(text, who){
-      const box = document.getElementById("chatMessages");
-      const div = document.createElement("div");
-      div.className = `bubble ${who}`;
-      div.textContent = text;
-      box.appendChild(div);
-      box.scrollTop = box.scrollHeight;
-    }
-
-    async function sendChat(){
-      const input = document.getElementById("chatInput");
-      const message = input.value.trim();
-      if(!message) return;
-      input.value = "";
-      appendMessage(message, "user");
-      setBotModeChat("speaking");
-      document.getElementById("stateChat").textContent = "Đang trả lời...";
-      try{
-        const r = await fetch("/chat", {
-          method:"POST",
-          headers:{ "Content-Type":"application/json" },
-          body: JSON.stringify({ message })
-        });
-        const data = await r.json();
-        const answer = data.answer ? data.answer : "...";
-        appendMessage(answer, "bot");
-        document.getElementById("stateChat").textContent = "Đã trả lời.";
-        speak(answer);
-      }catch(e){
-        appendMessage("Sunybot hiện không thể trả lời.", "bot");
-        document.getElementById("stateChat").textContent = "Lỗi kết nối.";
-      }finally{
-        setBotModeChat("idle");
       }
+    };
+
+    try{ recWake.start(); }catch(_){}
+  }
+
+  // ===== CHAT SCREEN =====
+  function appendMessage(text, who){
+    if(!ui.chatMessages) return;
+    const div = document.createElement("div");
+    div.className = `bubble ${who}`;
+    div.textContent = text;
+    ui.chatMessages.appendChild(div);
+    ui.chatMessages.scrollTop = ui.chatMessages.scrollHeight;
+  }
+
+  async function sendChat(){
+    if(!ui.chatInput) return;
+    const message = ui.chatInput.value.trim();
+    if(!message) return;
+    ui.chatInput.value = "";
+    appendMessage(message, "user");
+    setBotModeChat("speaking");
+    setText(ui.stateChat, "Đang trả lời...");
+    try{
+      const r = await fetch("/chat", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ message })
+      });
+      const data = await r.json();
+      const answer = data.answer ? data.answer : "...";
+      appendMessage(answer, "bot");
+      setText(ui.stateChat, "Đã trả lời.");
+      speak(answer);
+    }catch(_){
+      appendMessage("Sunybot hiện không thể trả lời.", "bot");
+      setText(ui.stateChat, "Lỗi kết nối.");
+    }finally{
+      setBotModeChat("idle");
+    }
+  }
+
+  function quickAsk(text){
+    if(!ui.chatInput) return;
+    ui.chatInput.value = text;
+    sendChat();
+  }
+
+  function voiceChat(){
+    const SpeechRecognition = createSpeechRecognition();
+    if(!SpeechRecognition){
+      showToast("Không hỗ trợ STT");
+      return;
     }
 
-    function quickAsk(text){
-      document.getElementById("chatInput").value = text;
+    if(recWake){
+      try{ recWake.stop(); }catch(_){ }
+    }
+
+    recChat = new SpeechRecognition();
+    recChat.lang = "vi-VN";
+    recChat.continuous = false;
+    recChat.interimResults = false;
+    setBotModeChat("listening");
+    setText(ui.stateChat, "Đang nghe câu hỏi...");
+
+    recChat.onresult = (ev) => {
+      const transcript = ev.results[0][0].transcript.trim();
+      appendMessage(transcript, "user");
+      if(ui.chatInput) ui.chatInput.value = transcript;
       sendChat();
+    };
+
+    recChat.onerror = () => {
+      setBotModeChat("idle");
+      setText(ui.stateChat, "Không nghe được.");
+      if(recWake){ try{ recWake.start(); }catch(_){ } }
+    };
+
+    recChat.onend = () => {
+      setBotModeChat("idle");
+      if(recWake){ try{ recWake.start(); }catch(_){ } }
+    };
+
+    try{ recChat.start(); }catch(_){}
+  }
+
+  // ===== MAINT LOGIN =====
+  function maintenanceLogin(){
+    const u = $id("maintUser")?.value.trim();
+    const p = $id("maintPass")?.value.trim();
+    if(!u || !p){
+      showToast("Vui lòng nhập tài khoản và mật khẩu");
+      return;
     }
+    localStorage.setItem("maint_authed", "1");
+    if(ui.maintLogin) ui.maintLogin.style.display = "none";
+    if(ui.maintDashboard) ui.maintDashboard.style.display = "block";
+  }
 
-    function voiceChat(){
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if(!SpeechRecognition){
-        showToast("Không hỗ trợ STT");
-        return;
-      }
+  function maintenanceLogout(){
+    localStorage.removeItem("maint_authed");
+    if(ui.maintLogin) ui.maintLogin.style.display = "block";
+    if(ui.maintDashboard) ui.maintDashboard.style.display = "none";
+  }
 
-      if(recWake){
-        try{ recWake.stop(); }catch(_){ }
-      }
+  function fillDemo(){
+    const user = $id("maintUser");
+    const pass = $id("maintPass");
+    const lan = $id("maintLan");
+    if(user) user.value = "engineer";
+    if(pass) pass.value = "123456";
+    if(lan) lan.value = "192.168.1.10";
+  }
 
-      recChat = new SpeechRecognition();
-      recChat.lang = "vi-VN";
-      recChat.continuous = false;
-      recChat.interimResults = false;
-      setBotModeChat("listening");
-      document.getElementById("stateChat").textContent = "Đang nghe câu hỏi...";
-
-      recChat.onresult = (ev)=>{
-        const transcript = ev.results[0][0].transcript.trim();
-        appendMessage(transcript, "user");
-        document.getElementById("chatInput").value = transcript;
-        sendChat();
-      };
-
-      recChat.onerror = ()=>{
-        setBotModeChat("idle");
-        document.getElementById("stateChat").textContent = "Không nghe được.";
-        if(recWake){ try{ recWake.start(); }catch(_){} }
-      };
-
-      recChat.onend = ()=>{
-        setBotModeChat("idle");
-        if(recWake){ try{ recWake.start(); }catch(_){} }
-      };
-
-      try{ recChat.start(); }catch(e){}
+  function runLLMQuery(){
+    const input = $id("llmInput");
+    const output = $id("llmOutput");
+    if(!input || !output) return;
+    const text = input.value.trim();
+    if(!text){
+      output.textContent = "Nhập câu hỏi để truy vấn.";
+      return;
     }
+    output.textContent = "Đang truy vấn...";
+    setTimeout(() => {
+      output.textContent = "Kết quả mẫu: Lỗi cửa kẹt xuất hiện nhiều nhất lúc 08:00-09:00.";
+    }, 700);
+  }
 
-    // ===== MAINT LOGIN =====
-    function maintenanceLogin(){
-      const u = document.getElementById("maintUser").value.trim();
-      const p = document.getElementById("maintPass").value.trim();
-      if(!u || !p){
-        showToast("Vui lòng nhập tài khoản và mật khẩu");
-        return;
-      }
-      localStorage.setItem("maint_authed","1");
-      document.getElementById("maint-login").style.display = "none";
-      document.getElementById("maint-dashboard").style.display = "block";
-    }
-
-    function maintenanceLogout(){
-      localStorage.removeItem("maint_authed");
-      document.getElementById("maint-login").style.display = "block";
-      document.getElementById("maint-dashboard").style.display = "none";
-    }
-
-    function fillDemo(){
-      document.getElementById("maintUser").value = "engineer";
-      document.getElementById("maintPass").value = "123456";
-      document.getElementById("maintLan").value = "192.168.1.10";
-    }
-
-    function runLLMQuery(){
-      const input = document.getElementById("llmInput").value.trim();
-      if(!input){
-        document.getElementById("llmOutput").textContent = "Nhập câu hỏi để truy vấn.";
-        return;
-      }
-      document.getElementById("llmOutput").textContent = "Đang truy vấn...";
-      setTimeout(()=>{
-        document.getElementById("llmOutput").textContent = "Kết quả mẫu: Lỗi cửa kẹt xuất hiện nhiều nhất lúc 08:00-09:00.";
-      }, 700);
-    }
-
-    // ===== INIT =====
+  // ===== INIT =====
+  function initMaintenance(){
     if(localStorage.getItem("maint_authed") === "1"){
-      document.getElementById("maint-login").style.display = "none";
-      document.getElementById("maint-dashboard").style.display = "block";
+      if(ui.maintLogin) ui.maintLogin.style.display = "none";
+      if(ui.maintDashboard) ui.maintDashboard.style.display = "block";
     }
+  }
 
+  function init(){
+    initNav();
+    initMaintenance();
+    startTopbarClock();
+    startStatusPolling();
+    startWeatherPolling();
+    startSOSTime();
     enableWake();
-  </script>
+  }
+
+  init();
+
+  // expose handlers used in inline HTML attributes
+  window.callFloor = callFloor;
+  window.confirmCall = confirmCall;
+  window.sendSOS = sendSOS;
+  window.setBotMode = setBotMode;
+  window.setBotModeChat = setBotModeChat;
+  window.sendChat = sendChat;
+  window.quickAsk = quickAsk;
+  window.voiceChat = voiceChat;
+  window.maintenanceLogin = maintenanceLogin;
+  window.maintenanceLogout = maintenanceLogout;
+  window.fillDemo = fillDemo;
+  window.runLLMQuery = runLLMQuery;
+</script>
+
 </body>
 </html>
