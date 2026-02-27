@@ -241,7 +241,14 @@
       box-shadow:0 16px 40px rgba(255,107,107,.35);
     }
 
-    .suny{
+
+    .btn-stop{
+      background:linear-gradient(135deg, rgba(255,107,107,.95), rgba(255,184,92,.95));
+      border:none;
+      color:#1a0b0b;
+      box-shadow:0 16px 40px rgba(255,107,107,.28);
+    }
+.suny{
       display:flex;
       flex-direction:column;
       align-items:center;
@@ -422,6 +429,8 @@
       flex-direction:column;
       gap:12px;
       min-height:420px;
+      height:520px;
+      max-height:70vh;
     }
 
     .chat-messages{
@@ -429,8 +438,32 @@
       display:flex;
       flex-direction:column;
       gap:10px;
-      overflow:auto;
+      overflow-y:auto;
+      overflow-x:hidden;
       padding-right:4px;
+    }
+
+
+    /* ===== SCROLLBAR THEME (match dark UI) ===== */
+    .chat-messages{
+      scrollbar-width: thin; /* Firefox */
+      scrollbar-color: rgba(87,201,255,.45) rgba(255,255,255,.06); /* thumb track */
+    }
+    .chat-messages::-webkit-scrollbar{
+      width: 10px;
+    }
+    .chat-messages::-webkit-scrollbar-track{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 999px;
+    }
+    .chat-messages::-webkit-scrollbar-thumb{
+      background: linear-gradient(180deg, rgba(43,210,182,.70), rgba(87,201,255,.65));
+      border-radius: 999px;
+      border: 2px solid rgba(15,22,32,.75); /* blend with panel */
+    }
+    .chat-messages::-webkit-scrollbar-thumb:hover{
+      background: linear-gradient(180deg, rgba(43,210,182,.88), rgba(87,201,255,.80));
     }
 
     .bubble{
@@ -677,7 +710,7 @@
                 <div class="v" id="weather">--</div>
               </div>
 
-              <button class="btn btn-primary" onclick="confirmCall(7)">Xác nhận đi tầng 7</button>
+              <button class="btn btn-primary" onclick="goToCallScreen()">Gọi tầng</button>
             </div>
           </div>
         </div>
@@ -751,9 +784,10 @@
               <div class="chat-messages" id="chatMessages">
                 <div class="bubble bot">Xin chào, tôi là Sunybot. Tôi có thể hỗ trợ gọi tầng, kiểm tra trạng thái và trả lời câu hỏi.</div>
               </div>
-              <div class="chat-input">
+<div class="chat-input">
                 <input id="chatInput" type="text" placeholder="Nhập câu hỏi..."/>
-                <button class="btn btn-primary" onclick="sendChat()">Gửi</button>
+                <button class="btn btn-primary" id="sendBtn" onclick="sendChat()">Gửi</button>
+                <button class="btn btn-stop" id="stopBtn" style="display:none" onclick="stopChat()">Dừng</button>
                 <button class="btn btn-ghost" onclick="voiceChat()">Mic</button>
               </div>
             </div>
@@ -985,6 +1019,9 @@
     stateChat: $id("stateChat"),
     chatMessages: $id("chatMessages"),
     chatInput: $id("chatInput"),
+    sendBtn: $id("sendBtn"),
+    stopBtn: $id("stopBtn"),
+    chatBox: document.querySelector("#screen-assistant .chat-box"),
     weather: $id("weather"),
     tbWeather: $id("tb_weather"),
     tbTime: $id("tb_time"),
@@ -996,15 +1033,25 @@
   };
 
   // ===== NAV =====
+  function navigateTo(target){
+    ui.navButtons.forEach(b => b.classList.remove("active"));
+    const btn = ui.navButtons.find(x => x.getAttribute("data-screen") === target);
+    if(btn) btn.classList.add("active");
+
+    ui.screens.forEach(s => s.classList.remove("active"));
+    const screen = $id(`screen-${target}`);
+    if(screen) screen.classList.add("active");
+  }
+
   function initNav(){
     ui.navButtons.forEach(btn => btn.addEventListener("click", () => {
-      ui.navButtons.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
       const target = btn.getAttribute("data-screen");
-      ui.screens.forEach(s => s.classList.remove("active"));
-      const screen = $id(`screen-${target}`);
-      if(screen) screen.classList.add("active");
+      navigateTo(target);
     }));
+  }
+
+  function goToCallScreen(){
+    navigateTo("call");
   }
 
   // ===== TOP BAR =====
@@ -1245,32 +1292,73 @@
     ui.chatMessages.scrollTop = ui.chatMessages.scrollHeight;
   }
 
+  let chatAbort = null;
+
+  function toggleChatBusy(busy){
+    if(ui.sendBtn) ui.sendBtn.style.display = busy ? "none" : "inline-flex";
+    if(ui.stopBtn) ui.stopBtn.style.display = busy ? "inline-flex" : "none";
+  }
+
+  function stopChat(){
+    try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(_){}
+    if(chatAbort){
+      try{ chatAbort.abort(); }catch(_){}
+      chatAbort = null;
+    }
+    toggleChatBusy(false);
+    setBotModeChat("idle");
+    setText(ui.stateChat, "Đã hủy.");
+  }
+
   async function sendChat(){
     if(!ui.chatInput) return;
+
     const message = ui.chatInput.value.trim();
     if(!message) return;
+
+    // Nếu đang có request trước đó thì hủy (để tránh chồng lệnh)
+    if(chatAbort){
+      try{ chatAbort.abort(); }catch(_){}
+      chatAbort = null;
+    }
+
     ui.chatInput.value = "";
     appendMessage(message, "user");
+
+    toggleChatBusy(true);
     setBotModeChat("speaking");
     setText(ui.stateChat, "Đang trả lời...");
+
+    chatAbort = new AbortController();
+
     try{
       const r = await fetch("/chat", {
         method:"POST",
         headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({ message })
+        body: JSON.stringify({ message }),
+        signal: chatAbort.signal
       });
+
       const data = await r.json();
       const answer = data.answer ? data.answer : "...";
       appendMessage(answer, "bot");
       setText(ui.stateChat, "Đã trả lời.");
       speak(answer);
-    }catch(_){
-      appendMessage("Sunybot hiện không thể trả lời.", "bot");
-      setText(ui.stateChat, "Lỗi kết nối.");
+    }catch(e){
+      // Bị hủy bởi nút Dừng
+      if(e && (e.name === "AbortError" || String(e).includes("AbortError"))){
+        setText(ui.stateChat, "Đã hủy.");
+      }else{
+        appendMessage("Sunybot hiện không thể trả lời.", "bot");
+        setText(ui.stateChat, "Lỗi kết nối.");
+      }
     }finally{
+      chatAbort = null;
+      toggleChatBusy(false);
       setBotModeChat("idle");
     }
   }
+
 
   function quickAsk(text){
     if(!ui.chatInput) return;
@@ -1383,10 +1471,13 @@
   // expose handlers used in inline HTML attributes
   window.callFloor = callFloor;
   window.confirmCall = confirmCall;
+  window.navigateTo = navigateTo;
+  window.goToCallScreen = goToCallScreen;
   window.sendSOS = sendSOS;
   window.setBotMode = setBotMode;
   window.setBotModeChat = setBotModeChat;
   window.sendChat = sendChat;
+  window.stopChat = stopChat;
   window.quickAsk = quickAsk;
   window.voiceChat = voiceChat;
   window.maintenanceLogin = maintenanceLogin;

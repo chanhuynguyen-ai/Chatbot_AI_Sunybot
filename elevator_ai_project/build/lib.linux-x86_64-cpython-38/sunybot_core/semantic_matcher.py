@@ -1,10 +1,9 @@
-# backend/semantic_matcher.py
-from suny_core.semantic_matcher import *
+# sunybot_core/semantic_matcher.py
 import json
 import math
-from typing import List, Dict, Tuple, Optional
-from config.db_config import db
-from backend.text_utils import normalize_vi
+from typing import List, Dict, Optional
+from sunybot_core.config.db_config import db
+from sunybot_core.text_utils import normalize_vi
 
 def cosine(a: List[float], b: List[float]) -> float:
     if not a or not b or len(a) != len(b):
@@ -56,7 +55,6 @@ class SemanticMatcher:
             conn.close()
 
     def keyword_fallback(self, user_norm: str) -> Optional[Dict]:
-        # match exact normalized text trước
         for it in self.items:
             if it["prompt_norm"] == user_norm:
                 return {**it, "confidence": 1.0}
@@ -65,12 +63,10 @@ class SemanticMatcher:
     def match(self, user_embedding: List[float], user_text: str, threshold: float = 0.78) -> Optional[Dict]:
         user_norm = normalize_vi(user_text)
 
-        # 1) keyword exact fallback
         hit = self.keyword_fallback(user_norm)
         if hit:
             return hit
 
-        # 2) embedding similarity
         best = None
         best_score = -1.0
         for it in self.items:
