@@ -4,7 +4,8 @@ Sử dụng hệ điều hành Ubuntu 18.4
 
 Demo giao diện hiện tại của Smart Elevator:
 
-<img width="1622" height="972" alt="image" src="https://github.com/user-attachments/assets/8a3698ea-e9aa-40c5-9c15-4b8061f7d900" />
+<img width="1739" height="963" alt="image" src="https://github.com/user-attachments/assets/667dfee1-530d-43ff-89b7-54468233acb8" />
+
 
 Demo giao diện GUI chạy trên http:
 
