@@ -47,3 +47,18 @@ chạy cloudflare:
 ```bash
 cloudflared tunnel --url http://localhost:8000
 ```
+lệnh test camera(IMX219):
+
+kiểm tra jetson có nhận camera chưa:
+
+```bash
+gst-inspect-1.0 nvarguscamerasrc
+```
+
+lệnh chạy test camera:
+
+```bash
+gst-launch-1.0 nvarguscamerasrc sensor-id=0 ! nvvidconv ! xvimagesink
+```
+
+
