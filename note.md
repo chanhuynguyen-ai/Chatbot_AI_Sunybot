@@ -60,5 +60,9 @@ lệnh chạy test camera:
 ```bash
 gst-launch-1.0 nvarguscamerasrc sensor-id=0 ! nvvidconv ! xvimagesink
 ```
+lệnh chạy test camera bằng tool invdia:
 
+```bash
+nvgstcapture-1.0
+```
 
