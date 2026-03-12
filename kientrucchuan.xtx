@@ -1,16 +1,66 @@
 #tổng quan cấu trúc đề tài
-[Frontend GUI (Web)]
+[Frontend GUI (Web/Desktop)]
         ↓ HTTP/JSON
 [Backend API (FastAPI)]
         ↓
 [Chatbot Engine]
         ↓
-[Database + Embedding + LLM (Ollama)]
+[Knowledge Services]
+(Employee Service + Semantic Matcher + Embedding Service + Ollama Service)
+        ↓
+[Database MySQL]
+(Employees + Intents + Prompts + Answers + Chat Logs)
+        ↘
+         [LLM / Embedding Model (Ollama)]
 
 
+HỆ THỐNG THANG MÁY THÔNG MINH
 
+[1] Giao diện người dùng
+    - Web GUI
+    - Chat Assistant
+    - Call Elevator
+    - SOS / Status / Maintenance
+    - Voice Interaction
 
+                ↓
 
+[2] Tầng giao tiếp dịch vụ
+    - FastAPI Backend
+    - REST API
+    - JSON Request/Response
+    - Serve Static / Dist Frontend
+
+                ↓
+
+[3] Tầng xử lý trung tâm
+    - Chatbot Engine
+    - Điều phối luồng xử lý câu hỏi
+    - Quyết định dùng DB / Semantic Search / LLM
+
+                ↓
+
+[4] Tầng dịch vụ nghiệp vụ
+    - Employee Service
+    - Semantic Matcher
+    - Embedding Service
+    - Ollama Service
+    - Text Normalization
+
+                ↓
+
+[5] Tầng dữ liệu và tri thức
+    - MySQL Database
+    - Prompt/Answer Knowledge Base
+    - Employee Data
+    - Chat Logs
+    - Embedding Vectors
+
+                ↓
+
+[6] Tầng trí tuệ nhân tạo
+    - Ollama Embedding Model
+    - Ollama LLM Generation Model
 
 elevator_ai_project
 │
