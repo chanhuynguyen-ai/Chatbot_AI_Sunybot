@@ -5,47 +5,34 @@
 ├── backend
 │   ├── api.py
 │   ├── build_embeddings.py
-│   ├── build_embeddings.py.save
-│   ├── chatbot_engine (copy).py
 │   ├── chatbot_engine.py
-│   ├── chatbot_engine.py.save
 │   ├── embedding_service.py
 │   ├── employee_service.py
-│   ├── from
 │   ├── __init__.py
 │   ├── logger.py
 │   ├── ollama_service.py
 │   ├── __pycache__
 │   │   ├── api.cpython-38.pyc
 │   │   ├── build_embeddings.cpython-38.pyc
-│   │   ├── chatbot_engine.cpython-36.pyc
 │   │   ├── chatbot_engine.cpython-38.pyc
 │   │   ├── embedding_service.cpython-38.pyc
-│   │   ├── employee_service.cpython-36.pyc
 │   │   ├── employee_service.cpython-38.pyc
-│   │   ├── __init__.cpython-36.pyc
 │   │   ├── __init__.cpython-38.pyc
-│   │   ├── logger.cpython-38.pyc
 │   │   ├── ollama_service.cpython-38.pyc
-│   │   ├── schemas.cpython-38.pyc
 │   │   ├── semantic_matcher.cpython-38.pyc
-│   │   ├── test_chatbot.cpython-36.pyc
-│   │   ├── test_chatbot.cpython-38.pyc
 │   │   └── text_utils.cpython-38.pyc
 │   ├── schemas.py
 │   ├── semantic_matcher.py
 │   ├── test_chatbot.py
 │   └── text_utils.py
+├── cloudflared-linux-amd64.deb
 ├── config
 │   ├── db_config.py
 │   ├── db_config.py.save
 │   ├── __init__.py
 │   └── __pycache__
-│       ├── db_config.cpython-36.pyc
 │       ├── db_config.cpython-38.pyc
-│       ├── __init__.cpython-36.pyc
 │       └── __init__.cpython-38.pyc
-├── -d
 ├── database
 │   ├── __pycache__
 │   │   └── remove_vietnamese_accent.cpython-38.pyc
@@ -53,19 +40,47 @@
 │   ├── schema.sql
 │   └── seed.sql
 ├── gui
+│   ├── gui
+│   │   └── mysql_admin_gui_pk.py
 │   ├── __init__.py
 │   ├── main.py
-│   ├── __pycache__
-│   │   ├── __init__.cpython-38.pyc
-│   │   └── main.cpython-38.pyc
 │   └── web
+│       ├── assets
+│       ├── dist
+│       │   ├── assets
+│       │   │   ├── index-bn7l8BoE.css
+│       │   │   └── index-C94rDJOP.js
+│       │   ├── favicon.ico
+│       │   └── index.html
 │       ├── index.html
+│       ├── pages
+│       │   ├── assistant.html
+│       │   └── call.html
 │       ├── static
+│       │   ├── app.css
+│       │   ├── app.js
+│       │   ├── favicon.ico
+│       │   ├── js
+│       │   │   ├── api.js
+│       │   │   ├── app.js
+│       │   │   ├── botui.js
+│       │   │   ├── call.js
+│       │   │   ├── chat.js
+│       │   │   ├── dom.js
+│       │   │   ├── maint.js
+│       │   │   ├── sos.js
+│       │   │   ├── status.js
+│       │   │   ├── voice.js
+│       │   │   └── weather.js
+│       │   ├── style.css
+│       │   └── ui.js
 │       └── templates
+│           └── chat.html
 ├── __init__.py
-├── logs
-│   └── sunybot.log
-├── models
-└── packages.microsoft.gpg
+├── install_jetson.sh
+├── package.json
+├── packages.microsoft.gpg
+├── pyproject.toml
+└── setup.py
 
-13 directories, 52 files
+16 directories, 64 files
