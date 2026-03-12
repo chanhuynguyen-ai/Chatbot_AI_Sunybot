@@ -1,86 +1,67 @@
-#cấu trúc cây thư mục:
-
-(elevator_env38) jetbanana@ubuntu:~/elevator_ai_project$ tree -L 3
-.
-├── backend
-│   ├── api.py
-│   ├── build_embeddings.py
-│   ├── chatbot_engine.py
-│   ├── embedding_service.py
-│   ├── employee_service.py
-│   ├── __init__.py
-│   ├── logger.py
-│   ├── ollama_service.py
-│   ├── __pycache__
-│   │   ├── api.cpython-38.pyc
-│   │   ├── build_embeddings.cpython-38.pyc
-│   │   ├── chatbot_engine.cpython-38.pyc
-│   │   ├── embedding_service.cpython-38.pyc
-│   │   ├── employee_service.cpython-38.pyc
-│   │   ├── __init__.cpython-38.pyc
-│   │   ├── ollama_service.cpython-38.pyc
-│   │   ├── semantic_matcher.cpython-38.pyc
-│   │   └── text_utils.cpython-38.pyc
-│   ├── schemas.py
-│   ├── semantic_matcher.py
-│   ├── test_chatbot.py
-│   └── text_utils.py
-├── cloudflared-linux-amd64.deb
-├── config
-│   ├── db_config.py
-│   ├── db_config.py.save
-│   ├── __init__.py
-│   └── __pycache__
-│       ├── db_config.cpython-38.pyc
-│       └── __init__.cpython-38.pyc
-├── database
-│   ├── __pycache__
-│   │   └── remove_vietnamese_accent.cpython-38.pyc
-│   ├── remove_vietnamese_accent.py
-│   ├── schema.sql
-│   └── seed.sql
-├── gui
-│   ├── gui
-│   │   └── mysql_admin_gui_pk.py
-│   ├── __init__.py
-│   ├── main.py
-│   └── web
-│       ├── assets
-│       ├── dist
-│       │   ├── assets
-│       │   │   ├── index-bn7l8BoE.css
-│       │   │   └── index-C94rDJOP.js
-│       │   ├── favicon.ico
-│       │   └── index.html
-│       ├── index.html
-│       ├── pages
-│       │   ├── assistant.html
-│       │   └── call.html
-│       ├── static
-│       │   ├── app.css
-│       │   ├── app.js
-│       │   ├── favicon.ico
-│       │   ├── js
-│       │   │   ├── api.js
-│       │   │   ├── app.js
-│       │   │   ├── botui.js
-│       │   │   ├── call.js
-│       │   │   ├── chat.js
-│       │   │   ├── dom.js
-│       │   │   ├── maint.js
-│       │   │   ├── sos.js
-│       │   │   ├── status.js
-│       │   │   ├── voice.js
-│       │   │   └── weather.js
-│       │   ├── style.css
-│       │   └── ui.js
-│       └── templates
-│           └── chat.html
-├── __init__.py
-├── install_jetson.sh
-├── package.json
-├── packages.microsoft.gpg
-├── pyproject.toml
-└── setup.py
-
-16 directories, 64 files
+elevator_ai_project
+│
+├── Runtime entry
+│   └── uvicorn backend.api:app
+│
+├── Backend (Python / FastAPI)
+│   ├── backend/api.py
+│   │   ├── GET  /                    -> ưu tiên serve gui/web/dist/index.html
+│   │   ├── GET  /pages/{page}        -> serve UI cũ (legacy)
+│   │   ├── GET  /health              -> healthcheck
+│   │   ├── GET  /api/elevator/status -> mock trạng thái thang máy
+│   │   ├── POST /chat                -> gọi ChatbotEngine
+│   │   └── GET  /{full_path:path}    -> SPA fallback cho React Router
+│   │
+│   └── backend/chatbot_engine.py
+│       ├── employee_service.py       -> tìm nhân viên theo mã / tên
+│       ├── embedding_service.py      -> tạo embedding
+│       ├── semantic_matcher.py       -> match prompt/answer từ DB
+│       ├── ollama_service.py         -> fallback LLM
+│       └── db_config.py              -> ghi chat_logs / đọc dữ liệu
+│
+├── Database layer
+│   ├── config/db_config.py           -> kết nối MySQL
+│   ├── database/schema.sql           -> tạo DB / bảng
+│   ├── database/seed.sql             -> dữ liệu mẫu
+│   └── database/remove_vietnamese_accent.py
+│       └── utility bỏ dấu / script convert dữ liệu
+│
+├── Frontend đang được ưu tiên khi chạy /
+│   └── gui/web/dist/
+│       ├── index.html                -> app root mặc định
+│       └── assets/index-*.js/css     -> bundle build sẵn
+│
+├── Frontend cũ (legacy / fallback)
+│   └── gui/web/
+│       ├── index.html
+│       ├── pages/assistant.html
+│       ├── pages/call.html
+│       ├── templates/chat.html
+│       └── static/
+│           ├── ui.js
+│           ├── app.css
+│           ├── style.css
+│           └── js/
+│               ├── app.js            -> boot frontend cũ
+│               ├── api.js            -> gọi backend API
+│               ├── chat.js           -> chat text
+│               ├── voice.js          -> wake word / STT
+│               ├── call.js           -> gọi tầng
+│               ├── status.js         -> cập nhật trạng thái
+│               ├── sos.js            -> gửi SOS
+│               ├── weather.js        -> thời tiết
+│               ├── maint.js          -> màn bảo trì demo
+│               ├── botui.js          -> UI bot + TTS
+│               └── dom.js            -> map DOM
+│
+├── Desktop tools
+│   ├── gui/main.py                   -> chatbot desktop PyQt
+│   └── gui/gui/mysql_admin_gui_pk.py -> GUI quản trị MySQL
+│
+└── Build / install / packaging
+    ├── install_jetson.sh             -> cài môi trường Jetson + chạy uvicorn
+    ├── setup.py                      -> build native module sunycore_native
+    ├── package.json                  -> metadata Node rất tối giản
+    ├── pyproject.toml                -> cấu hình Python project
+    ├── cloudflared-linux-amd64.deb   -> gói tunnel / deploy phụ
+    └── packages.microsoft.gpg        -> key hệ thống, không phải app logic
