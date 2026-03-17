@@ -870,7 +870,7 @@
       <div class="maint-layout">
         <div class="login-box" id="maint-login">
           <h3 style="margin:0 0 6px">Đăng nhập bảo trì</h3>
-          <div class="muted">Đăng nhập LAN/IP để mở dashboard.</div>
+          <div class="muted">Đăng nhập LAN/IP để mở dashboard quản trị dữ liệu.</div>
           <input id="maintUser" placeholder="Tài khoản kỹ thuật"/>
           <input id="maintPass" type="password" placeholder="Mật khẩu"/>
           <input id="maintLan" placeholder="LAN/IP (ví dụ: 192.168.1.10)"/>
@@ -881,105 +881,303 @@
         </div>
 
         <div id="maint-dashboard" style="display:none;">
-          <div class="maint-grid">
-            <div class="card">
-              <h3>Trạng thái thang</h3>
-              <div class="inline">
-                <span class="pill">Tầng: <b id="maintFloor">--</b></span>
-                <span class="pill">Hướng: <b id="maintDirection">--</b></span>
-                <span class="pill">Cửa: <b id="maintDoor">--</b></span>
-                <span class="pill">Người: <b id="maintPeople">--</b></span>
+          <div class="maint-top-grid">
+            <div class="panel maint-merged-card" id="maintMergedStatusCard">
+              <div class="maint-card-head">
+                <div>
+                  <h3>Trạng thái thang & cấu hình hệ thống</h3>
+                  <div class="muted">Gộp trạng thái vận hành với thông số hệ thống</div>
+                </div>
               </div>
-              <div style="margin-top:10px" class="muted">Cập nhật lúc <span id="maintTime">--:--</span></div>
+
+              <div class="maint-status-config-grid">
+                <div class="maint-status-block">
+                  <div class="inline">
+                    <span class="pill">Tầng: <b id="maintFloor">--</b></span>
+                    <span class="pill">Hướng: <b id="maintDirection">--</b></span>
+                    <span class="pill">Cửa: <b id="maintDoor">--</b></span>
+                    <span class="pill">Người: <b id="maintPeople">--</b></span>
+                  </div>
+                  <div style="margin-top:10px" class="muted">
+                    Cập nhật lúc <span id="maintTime">--:--</span>
+                  </div>
+                </div>
+
+                <div class="maint-config-block">
+                  <div class="inline">
+                    <span class="pill">Camera: ON</span>
+                    <span class="pill">Database: OK</span>
+                    <span class="pill">AI Model: OK</span>
+                    <span class="pill">SIM Module: Active</span>
+                    <span class="pill">Network: OK</span>
+                    <span class="pill">Storage: 72%</span>
+                  </div>
+                  <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+                    <button class="btn btn-ghost btn-sm">Ngưỡng cảnh báo</button>
+                    <button class="btn btn-ghost btn-sm">Đối tượng theo dõi</button>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div class="card">
-              <h3>Live camera & CV Events</h3>
-              <div class="chart"></div>
-              <div class="inline" style="margin-top:8px">
-                <span class="tag">Live stream</span>
+            <div class="panel maint-camera-card">
+              <div class="maint-card-head">
+                <div>
+                  <h3>Live Camera & CV Events</h3>
+                  <div class="muted">Preview camera và các mô-đun CV</div>
+                </div>
+              </div>
+              <div class="chart maint-camera-preview"></div>
+              <div class="inline" style="margin-top:10px">
+                <span class="tag">Camera ON</span>
                 <span class="tag">Person tracking</span>
                 <span class="tag">Object detection</span>
+                <span class="tag">Face recognition</span>
+              </div>
+              <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+                <button class="btn btn-primary btn-sm">Bật Camera</button>
+                <button class="btn btn-ghost btn-sm">Person tracking</button>
+                <button class="btn btn-ghost btn-sm">Object detection</button>
               </div>
             </div>
 
-            <div class="card">
-              <h3>Thống kê nhanh</h3>
+            <div class="panel maint-density-card">
+              <div class="maint-card-head">
+                <div>
+                  <h3>Mật độ người / ngày</h3>
+                  <div class="muted">Thống kê tải và cao điểm</div>
+                </div>
+              </div>
               <div class="chart"></div>
-              <div class="inline" style="margin-top:8px">
-                <span class="pill">Giờ cao điểm: 08:00 - 09:30</span>
-                <span class="pill">Tần suất người lạ: 3/ngày</span>
+              <div class="inline" style="margin-top:10px">
+                <span class="pill">Cao điểm: 08h, 17h-18h</span>
+                <span class="pill">Tổng: 398 lượt</span>
               </div>
             </div>
           </div>
 
-          <div class="card" style="margin-top:14px">
-            <h3>Timeline sự kiện</h3>
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Thời gian</th>
-                  <th>Sự kiện</th>
-                  <th>Độ tin cậy</th>
-                  <th>Thang/Tầng</th>
-                  <th>Hành động</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>08:14</td>
-                  <td>Phát hiện người lạ</td>
-                  <td>0.86</td>
-                  <td>#A / Tầng 6</td>
-                  <td><button class="btn btn-ghost">Xem chi tiết</button></td>
-                </tr>
-                <tr>
-                  <td>09:02</td>
-                  <td>Quá tải</td>
-                  <td>0.92</td>
-                  <td>#A / Tầng 1</td>
-                  <td><button class="btn btn-ghost">Đánh dấu false alarm</button></td>
-                </tr>
-                <tr>
-                  <td>10:20</td>
-                  <td>Cửa kẹt</td>
-                  <td>0.78</td>
-                  <td>#A / Tầng 3</td>
-                  <td><button class="btn btn-ghost">Xuất báo cáo</button></td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="panel maint-timeline-card" style="margin-top:14px">
+            <div class="maint-card-head">
+              <div>
+                <h3>Timeline sự kiện</h3>
+                <div class="muted">Sự kiện CV, vận hành và cảnh báo kỹ thuật</div>
+              </div>
+            </div>
+
+            <div class="maint-table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Thời gian</th>
+                    <th>Sự kiện</th>
+                    <th>Mức độ</th>
+                    <th>Độ tin cậy</th>
+                    <th>Thang/Tầng</th>
+                    <th>Hành động</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>08:14</td>
+                    <td>Phát hiện người lạ</td>
+                    <td><span class="tag tag-warn">Cảnh báo</span></td>
+                    <td>0.86</td>
+                    <td>#A / Tầng 6</td>
+                    <td><button class="btn btn-ghost btn-sm">Xem</button></td>
+                  </tr>
+                  <tr>
+                    <td>09:02</td>
+                    <td>Quá tải</td>
+                    <td><span class="tag tag-err">Lỗi</span></td>
+                    <td>0.92</td>
+                    <td>#A / Tầng 1</td>
+                    <td><button class="btn btn-ghost btn-sm">Xem</button></td>
+                  </tr>
+                  <tr>
+                    <td>10:20</td>
+                    <td>Cửa kẹt</td>
+                    <td><span class="tag tag-err">Lỗi</span></td>
+                    <td>0.78</td>
+                    <td>#A / Tầng 3</td>
+                    <td><button class="btn btn-ghost btn-sm">Xem</button></td>
+                  </tr>
+                  <tr>
+                    <td>11:46</td>
+                    <td>Bảo trì định kỳ hoàn tất</td>
+                    <td><span class="tag tag-ok">Thông báo</span></td>
+                    <td>1.00</td>
+                    <td>#A / Hệ thống</td>
+                    <td><button class="btn btn-ghost btn-sm">Xem</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          <div class="maint-grid" style="margin-top:14px">
-            <div class="card">
-              <h3>Tra cứu dữ liệu</h3>
-              <div class="muted">Tra cứu nhân viên, sự kiện, tốc độ, mật độ người.</div>
+          <div class="maint-bottom-grid" id="maintBottomGrid">
+            <div class="panel maint-lookup-card" id="maintLookupCard">
+              <div class="maint-card-head">
+                <div>
+                  <h3>Tra cứu dữ liệu</h3>
+                  <div class="muted">Giữ nguyên vùng tra cứu nghiệp vụ</div>
+                </div>
+              </div>
+
               <div class="inline" style="margin-top:8px">
-                <button class="btn btn-ghost">Nhân viên</button>
-                <button class="btn btn-ghost">Khuôn mặt</button>
-                <button class="btn btn-ghost">Nhật ký ra/vào</button>
-                <button class="btn btn-ghost">Xuất CSV/PDF</button>
+                <button class="btn btn-ghost btn-sm">Nhân viên</button>
+                <button class="btn btn-ghost btn-sm">Khuôn mặt</button>
+                <button class="btn btn-ghost btn-sm">Nhật ký ra/vào</button>
+                <button class="btn btn-ghost btn-sm">Câu hỏi user</button>
+              </div>
+
+              <div class="maint-table-wrap" style="margin-top:12px">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Mã NV</th>
+                      <th>Họ tên</th>
+                      <th>Phòng ban</th>
+                      <th>Truy cập gần nhất</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>NV001</td><td>Nguyễn Văn A</td><td>Kỹ thuật</td><td>08:12</td></tr>
+                    <tr><td>NV002</td><td>Trần Thị B</td><td>Quản lý</td><td>09:30</td></tr>
+                    <tr><td>NV003</td><td>Lê Minh C</td><td>Bảo vệ</td><td>07:55</td></tr>
+                    <tr><td>NV004</td><td>Phạm Hoàng D</td><td>Kỹ thuật</td><td>10:15</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="inline" style="margin-top:12px">
+                <button class="btn btn-ghost btn-sm">Xuất CSV</button>
+                <button class="btn btn-ghost btn-sm">Xuất PDF</button>
               </div>
             </div>
-            <div class="card">
-              <h3>LLM Console</h3>
-              <input id="llmInput" placeholder="Hỏi kỹ sư..." />
-              <button class="btn btn-primary" style="margin-top:8px" onclick="runLLMQuery()">Truy vấn</button>
-              <div class="muted" id="llmOutput" style="margin-top:8px">Kết quả sẽ hiển thị ở đây.</div>
+
+            <div class="panel data-manager-card" id="maintDataCard">
+              <div class="maint-card-head">
+                <div>
+                  <h3>Quản lý dữ liệu</h3>
+                  <div class="muted">Quản lý 2 nguồn database: MySQL trước, MongoDB sau</div>
+                </div>
+
+                <div class="data-manager-actions">
+                  <button class="btn btn-ghost btn-sm" id="maintExpandBtn" type="button">Phóng to</button>
+                  <button class="maint-chat-fab" id="maintChatToggle" type="button" title="Mở chat hỗ trợ">🤖</button>
+                </div>
+              </div>
+
+              <div class="data-tabs">
+                <button class="data-tab active" id="dataTabMysql" type="button" data-tab="mysql">MySQL</button>
+                <button class="data-tab" id="dataTabMongo" type="button" data-tab="mongo">MongoDB</button>
+              </div>
+
+              <div class="data-tab-panel active" id="dataPanelMysql">
+                <div class="mysql-connection-grid">
+                  <input id="mysqlHost" class="data-input" placeholder="Host" value="localhost"/>
+                  <input id="mysqlPort" class="data-input" placeholder="Port" value="3306"/>
+                  <input id="mysqlUser" class="data-input" placeholder="User" value="elevator_ai"/>
+                  <input id="mysqlPassword" class="data-input" type="password" placeholder="Password" value="elevator123"/>
+                  <button class="btn btn-primary btn-sm" id="mysqlConnectBtn" type="button">Connect</button>
+                </div>
+
+                <div class="mysql-dbbar">
+                  <select id="mysqlDbSelect" class="data-input data-select">
+                    <option value="">Chọn database</option>
+                    <option value="elevator_ai">elevator_ai</option>
+                  </select>
+                  <button class="btn btn-ghost btn-sm" id="mysqlUseDbBtn" type="button">Use Database</button>
+                  <button class="btn btn-ghost btn-sm" id="mysqlLoadTableBtn" type="button">Load Table</button>
+                </div>
+
+                <div class="mysql-manager-layout">
+                  <div class="mysql-sidebar">
+                    <div class="mysql-sidebar-head">Tables</div>
+                    <div class="mysql-table-list" id="mysqlTableList">
+                      <button class="table-item active" type="button" data-table="employees">employees</button>
+                      <button class="table-item" type="button" data-table="intents">intents</button>
+                      <button class="table-item" type="button" data-table="prompts">prompts</button>
+                      <button class="table-item" type="button" data-table="answers">answers</button>
+                      <button class="table-item" type="button" data-table="chat_logs">chat_logs</button>
+                    </div>
+                  </div>
+
+                  <div class="mysql-main">
+                    <div class="mysql-grid-toolbar">
+                      <button class="btn btn-ghost btn-sm" id="mysqlAddRowBtn" type="button">Add Row</button>
+                      <button class="btn btn-ghost btn-sm" id="mysqlDeleteBtn" type="button">Delete Selected</button>
+                      <button class="btn btn-primary btn-sm" id="mysqlSaveBtn" type="button">Save Changes</button>
+                      <button class="btn btn-ghost btn-sm" id="mysqlRefreshBtn" type="button">Refresh</button>
+                    </div>
+
+                    <div class="mysql-grid-status muted" id="mysqlGridStatus">
+                      Giao diện quản lý MySQL đã sẵn sàng. Bước tiếp theo sẽ nối backend API để chạy thật.
+                    </div>
+
+                    <div class="mysql-grid-wrap">
+                      <table class="table mysql-grid" id="mysqlGrid">
+                        <thead>
+                          <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><span class="readonly-cell">1</span></td>
+                            <td contenteditable="true">Nguyễn Văn A</td>
+                            <td contenteditable="true">Kỹ thuật</td>
+                            <td contenteditable="true">Active</td>
+                          </tr>
+                          <tr>
+                            <td><span class="readonly-cell">2</span></td>
+                            <td contenteditable="true">Trần Thị B</td>
+                            <td contenteditable="true">Quản lý</td>
+                            <td contenteditable="true">Active</td>
+                          </tr>
+                          <tr>
+                            <td><span class="readonly-cell">3</span></td>
+                            <td contenteditable="true">Lê Minh C</td>
+                            <td contenteditable="true">Bảo vệ</td>
+                            <td contenteditable="true">Inactive</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="data-tab-panel" id="dataPanelMongo">
+                <div class="mongo-placeholder">
+                  <div class="mongo-placeholder-title">MongoDB</div>
+                  <div class="muted">Tab này được giữ sẵn để phát triển sau. Hiện tại chỉ triển khai MySQL trước.</div>
+                </div>
+              </div>
             </div>
-            <div class="card">
-              <h3>Cấu hình hệ thống</h3>
-              <div class="inline">
-                <span class="pill">Camera: ON</span>
-                <span class="pill">DB: OK</span>
-                <span class="pill">Model: OK</span>
-                <span class="pill">Storage: 72%</span>
+          </div>
+
+          <div class="maint-chat-panel" id="maintChatPanel">
+            <div class="maint-chat-head">
+              <div>
+                <div class="maint-chat-title">Sunybot Assistant</div>
+                <div class="muted">Hỏi nhanh về bảo trì, dữ liệu, lỗi vận hành</div>
               </div>
-              <div style="margin-top:8px">
-                <button class="btn btn-ghost">Ngưỡng cảnh báo</button>
-                <button class="btn btn-ghost">Danh sách đối tượng</button>
+              <button class="btn btn-ghost btn-sm" id="maintChatClose" type="button">Đóng</button>
+            </div>
+
+            <div class="maint-chat-messages" id="maintChatMessages">
+              <div class="maint-chat-bubble bot">
+                Xin chào, tôi là Sunybot. Hãy nhập câu hỏi liên quan đến bảo trì hoặc dữ liệu.
               </div>
+            </div>
+
+            <div class="maint-chat-input-row">
+              <input id="maintChatInput" class="data-input" placeholder="Nhập nội dung cần hỗ trợ..."/>
+              <button class="btn btn-primary btn-sm" id="maintChatSend" type="button">Gửi</button>
             </div>
           </div>
 
@@ -1405,60 +1603,11 @@
     try{ recChat.start(); }catch(_){}
   }
 
-  // ===== MAINT LOGIN =====
-  function maintenanceLogin(){
-    const u = $id("maintUser")?.value.trim();
-    const p = $id("maintPass")?.value.trim();
-    if(!u || !p){
-      showToast("Vui lòng nhập tài khoản và mật khẩu");
-      return;
-    }
-    localStorage.setItem("maint_authed", "1");
-    if(ui.maintLogin) ui.maintLogin.style.display = "none";
-    if(ui.maintDashboard) ui.maintDashboard.style.display = "block";
-  }
-
-  function maintenanceLogout(){
-    localStorage.removeItem("maint_authed");
-    if(ui.maintLogin) ui.maintLogin.style.display = "block";
-    if(ui.maintDashboard) ui.maintDashboard.style.display = "none";
-  }
-
-  function fillDemo(){
-    const user = $id("maintUser");
-    const pass = $id("maintPass");
-    const lan = $id("maintLan");
-    if(user) user.value = "engineer";
-    if(pass) pass.value = "123456";
-    if(lan) lan.value = "192.168.1.10";
-  }
-
-  function runLLMQuery(){
-    const input = $id("llmInput");
-    const output = $id("llmOutput");
-    if(!input || !output) return;
-    const text = input.value.trim();
-    if(!text){
-      output.textContent = "Nhập câu hỏi để truy vấn.";
-      return;
-    }
-    output.textContent = "Đang truy vấn...";
-    setTimeout(() => {
-      output.textContent = "Kết quả mẫu: Lỗi cửa kẹt xuất hiện nhiều nhất lúc 08:00-09:00.";
-    }, 700);
-  }
+  // ===== MAINTENANCE MOVED TO MODULE =====
 
   // ===== INIT =====
-  function initMaintenance(){
-    if(localStorage.getItem("maint_authed") === "1"){
-      if(ui.maintLogin) ui.maintLogin.style.display = "none";
-      if(ui.maintDashboard) ui.maintDashboard.style.display = "block";
-    }
-  }
-
   function init(){
     initNav();
-    initMaintenance();
     startTopbarClock();
     startStatusPolling();
     startWeatherPolling();
@@ -1480,10 +1629,28 @@
   window.stopChat = stopChat;
   window.quickAsk = quickAsk;
   window.voiceChat = voiceChat;
+</script>
+
+
+<script type="module">
+  import {
+    initMaint,
+    maintenanceLogin,
+    maintenanceLogout,
+    fillDemo,
+    switchDataTab,
+    toggleDataExpand,
+    toggleMaintChat
+  } from "/static/js/maint.js";
+
   window.maintenanceLogin = maintenanceLogin;
   window.maintenanceLogout = maintenanceLogout;
   window.fillDemo = fillDemo;
-  window.runLLMQuery = runLLMQuery;
+  window.switchDataTab = switchDataTab;
+  window.toggleDataExpand = toggleDataExpand;
+  window.toggleMaintChat = toggleMaintChat;
+
+  initMaint();
 </script>
 
 </body>

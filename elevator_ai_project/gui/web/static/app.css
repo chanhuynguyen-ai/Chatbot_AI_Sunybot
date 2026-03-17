@@ -312,4 +312,400 @@ body{
   z-index: 250;
 }
 .toast.show{ display:block; }
+/* ===== MAINTENANCE CENTER UPDATE ===== */
+.maint-top-grid{
+  display:grid;
+  grid-template-columns:1.15fr 1fr 1fr;
+  gap:14px;
+}
+@media (max-width:1100px){
+  .maint-top-grid{grid-template-columns:1fr 1fr;}
+}
+@media (max-width:780px){
+  .maint-top-grid{grid-template-columns:1fr;}
+}
 
+.maint-card-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:12px;
+}
+.maint-card-head h3{
+  margin:0 0 4px;
+  font-size:14px;
+  text-transform:uppercase;
+  letter-spacing:.4px;
+}
+
+.maint-merged-card,
+.maint-camera-card,
+.maint-density-card,
+.maint-timeline-card,
+.maint-lookup-card,
+.data-manager-card{
+  min-height:100%;
+}
+
+.maint-status-config-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:14px;
+}
+
+.maint-status-block,
+.maint-config-block{
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;
+  padding:14px;
+  background:rgba(255,255,255,.03);
+}
+
+.maint-camera-preview{
+  min-height:140px;
+}
+
+.maint-table-wrap{
+  overflow:auto;
+}
+
+.maint-bottom-grid{
+  display:grid;
+  grid-template-columns:.95fr 1.45fr;
+  gap:14px;
+  margin-top:14px;
+  align-items:start;
+}
+@media (max-width:1100px){
+  .maint-bottom-grid{grid-template-columns:1fr;}
+}
+
+.maint-bottom-grid.expanded{
+  grid-template-columns:1fr;
+}
+.maint-bottom-grid.expanded .maint-lookup-card{
+  display:none;
+}
+
+.data-manager-card{
+  position:relative;
+  overflow:hidden;
+}
+
+.data-manager-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.btn-sm{
+  min-height:auto;
+  padding:10px 14px;
+  border-radius:14px;
+  font-size:13px;
+}
+
+.maint-chat-fab{
+  width:42px;
+  height:42px;
+  border:none;
+  border-radius:14px;
+  cursor:pointer;
+  font-size:18px;
+  color:#06112c;
+  background:linear-gradient(135deg, #2bd2b6, #57c9ff);
+  box-shadow:0 14px 28px rgba(43,210,182,.26);
+}
+
+.data-tabs{
+  display:flex;
+  gap:10px;
+  margin-bottom:14px;
+}
+
+.data-tab{
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.05);
+  color:var(--muted);
+  border-radius:14px;
+  padding:10px 14px;
+  font-weight:900;
+  cursor:pointer;
+}
+.data-tab.active{
+  color:var(--text);
+  border-color:rgba(47,124,255,.45);
+  background:linear-gradient(180deg, rgba(47,124,255,.20), rgba(255,255,255,.04));
+}
+
+.data-tab-panel{
+  display:none;
+}
+.data-tab-panel.active{
+  display:block;
+}
+
+.mysql-connection-grid{
+  display:grid;
+  grid-template-columns:1fr .65fr 1fr 1fr auto;
+  gap:10px;
+  margin-bottom:12px;
+}
+@media (max-width:980px){
+  .mysql-connection-grid{grid-template-columns:1fr 1fr;}
+}
+@media (max-width:640px){
+  .mysql-connection-grid{grid-template-columns:1fr;}
+}
+
+.mysql-dbbar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+
+.data-input,
+.data-select{
+  width:100%;
+  min-height:46px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.18);
+  color:var(--text);
+  padding:0 14px;
+  outline:none;
+}
+.data-input::placeholder{
+  color:rgba(234,240,255,.46);
+}
+
+.mysql-manager-layout{
+  display:grid;
+  grid-template-columns:240px 1fr;
+  gap:12px;
+}
+@media (max-width:980px){
+  .mysql-manager-layout{grid-template-columns:1fr;}
+}
+
+.mysql-sidebar{
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  background:rgba(255,255,255,.03);
+  padding:12px;
+}
+
+.mysql-sidebar-head{
+  font-size:12px;
+  font-weight:900;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.6px;
+  margin-bottom:10px;
+}
+
+.mysql-table-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.table-item{
+  width:100%;
+  text-align:left;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.04);
+  color:var(--text);
+  border-radius:12px;
+  padding:10px 12px;
+  cursor:pointer;
+  font-weight:700;
+}
+.table-item.active{
+  border-color:rgba(47,124,255,.48);
+  background:linear-gradient(180deg, rgba(47,124,255,.20), rgba(255,255,255,.03));
+}
+
+.mysql-main{
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  background:rgba(255,255,255,.03);
+  padding:12px;
+}
+
+.mysql-grid-toolbar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+
+.mysql-grid-status{
+  margin-bottom:10px;
+}
+
+.mysql-grid-wrap{
+  overflow:auto;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;
+}
+
+.mysql-grid td[contenteditable="true"]{
+  background:rgba(255,255,255,.025);
+}
+
+.readonly-cell{
+  display:inline-block;
+  padding:6px 8px;
+  border-radius:10px;
+  background:rgba(255,255,255,.06);
+  color:rgba(234,240,255,.70);
+  border:1px dashed rgba(255,255,255,.12);
+}
+
+.mongo-placeholder{
+  min-height:220px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  border:1px dashed rgba(255,255,255,.16);
+  border-radius:18px;
+  background:rgba(255,255,255,.03);
+  padding:24px;
+}
+.mongo-placeholder-title{
+  font-size:18px;
+  font-weight:900;
+  margin-bottom:8px;
+}
+
+.tag-ok{
+  background:rgba(46,229,157,.16);
+  color:rgba(46,229,157,.95);
+}
+.tag-warn{
+  background:rgba(255,184,92,.18);
+  color:rgba(255,184,92,.95);
+}
+.tag-err{
+  background:rgba(255,59,59,.18);
+  color:rgba(255,59,59,.95);
+}
+
+.maint-chat-panel{
+  position:fixed;
+  right:18px;
+  bottom:118px;
+  width:min(420px, calc(100vw - 36px));
+  max-height:70vh;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  padding:14px;
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(7,14,28,.92);
+  box-shadow:0 26px 70px rgba(0,0,0,.55);
+  backdrop-filter:blur(14px);
+  z-index:180;
+  transform:translateX(120%);
+  opacity:0;
+  pointer-events:none;
+  transition:.22s ease;
+}
+.maint-chat-panel.open{
+  transform:translateX(0);
+  opacity:1;
+  pointer-events:auto;
+}
+
+.maint-chat-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.maint-chat-title{
+  font-size:15px;
+  font-weight:900;
+}
+
+.maint-chat-messages{
+  min-height:240px;
+  max-height:40vh;
+  overflow:auto;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding-right:4px;
+}
+
+.maint-chat-bubble{
+  max-width:85%;
+  padding:10px 12px;
+  border-radius:14px;
+  font-size:13px;
+  line-height:1.5;
+}
+.maint-chat-bubble.user{
+  align-self:flex-end;
+  background:rgba(87,201,255,.16);
+  border:1px solid rgba(87,201,255,.22);
+}
+.maint-chat-bubble.bot{
+  align-self:flex-start;
+  background:rgba(43,210,182,.14);
+  border:1px solid rgba(43,210,182,.22);
+}
+
+.maint-chat-input-row{
+  display:flex;
+  gap:10px;
+}
+.maint-chat-input-row .data-input{
+  flex:1;
+}
+.mysql-grid .row-select-cell{
+  text-align:center;
+  vertical-align:middle;
+  width:52px;
+}
+
+.mysql-grid .row-check{
+  width:16px;
+  height:16px;
+  cursor:pointer;
+}
+
+.mysql-grid tr.row-selected td{
+  background:rgba(87,201,255,.10);
+}
+
+.mysql-grid tr.empty-state-row td{
+  text-align:center;
+  padding:18px;
+}
+
+.mysql-grid button:disabled,
+.btn:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+.table-item.active{
+  box-shadow:0 0 0 1px rgba(87,201,255,.35) inset;
+}
+
+.mysql-grid-status{
+  min-height:20px;
+}
+
+.mysql-grid td[contenteditable="true"]:focus{
+  outline:2px solid rgba(87,201,255,.35);
+  background:rgba(87,201,255,.08);
+}
