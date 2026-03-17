@@ -1,89 +1,151 @@
-# backend/semantic_matcher.py
-from suny_core.semantic_matcher import *
-import json
 import math
-from typing import List, Dict, Tuple, Optional
-from config.db_config import db
+from typing import Dict, List, Optional
+
+from config.db_config import db, to_pgvector
 from backend.text_utils import normalize_vi
 
-def cosine(a: List[float], b: List[float]) -> float:
-    if not a or not b or len(a) != len(b):
-        return 0.0
-    dot = 0.0
-    na = 0.0
-    nb = 0.0
-    for x, y in zip(a, b):
-        dot += x * y
-        na += x * x
-        nb += y * y
-    if na == 0.0 or nb == 0.0:
-        return 0.0
-    return dot / (math.sqrt(na) * math.sqrt(nb))
 
 class SemanticMatcher:
     def __init__(self):
         self.items: List[Dict] = []
+        self.item_count: int = 0
 
     def load_from_db(self):
         conn = db.connect()
         try:
             with conn.cursor() as cur:
-                cur.execute("""
-                    SELECT i.intent_name, p.prompt_text, p.embedding, a.answer_text
-                    FROM intents i
-                    JOIN prompts p ON i.intent_id = p.intent_id
-                    JOIN answers a ON i.intent_id = a.intent_id
-                """)
-                rows = cur.fetchall()
-
-            items = []
-            for r in rows:
-                emb = None
-                if r.get("embedding"):
-                    try:
-                        emb = json.loads(r["embedding"])
-                    except Exception:
-                        emb = None
-                items.append({
-                    "intent_name": r["intent_name"],
-                    "prompt_text": r["prompt_text"],
-                    "prompt_norm": normalize_vi(r["prompt_text"]),
-                    "embedding": emb,
-                    "answer_text": r["answer_text"],
-                })
-            self.items = items
+                cur.execute("SELECT COUNT(*) AS cnt FROM prompts")
+                row = cur.fetchone() or {}
+                self.item_count = int(row.get("cnt") or 0)
+                self.items = [{"loaded": True}] if self.item_count > 0 else []
         finally:
             conn.close()
 
     def keyword_fallback(self, user_norm: str) -> Optional[Dict]:
-        # match exact normalized text trước
-        for it in self.items:
-            if it["prompt_norm"] == user_norm:
-                return {**it, "confidence": 1.0}
-        return None
+        if not user_norm:
+            return None
+        conn = db.connect()
+        try:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT i.intent_name,
+                           p.prompt_id,
+                           p.prompt_text,
+                           p.prompt_norm,
+                           a.answer_text,
+                           1.0::float AS confidence,
+                           'EXACT'::text AS retrieval_mode
+                    FROM prompts p
+                    JOIN intents i ON i.intent_id = p.intent_id
+                    JOIN answers a ON a.intent_id = p.intent_id
+                    WHERE p.prompt_norm = %s
+                    ORDER BY a.answer_id ASC
+                    LIMIT 1
+                    """,
+                    (user_norm,),
+                )
+                return cur.fetchone()
+        finally:
+            conn.close()
+
+    def _fts_search(self, conn, user_norm: str, top_k: int) -> List[Dict]:
+        if not user_norm:
+            return []
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT i.intent_name,
+                       p.prompt_id,
+                       p.prompt_text,
+                       p.prompt_norm,
+                       a.answer_text,
+                       LEAST(1.0, ts_rank_cd(p.tsv, plainto_tsquery('simple', %s))::float) AS confidence,
+                       'FTS'::text AS retrieval_mode
+                FROM prompts p
+                JOIN intents i ON i.intent_id = p.intent_id
+                JOIN answers a ON a.intent_id = p.intent_id
+                WHERE p.tsv @@ plainto_tsquery('simple', %s)
+                ORDER BY ts_rank_cd(p.tsv, plainto_tsquery('simple', %s)) DESC,
+                         p.prompt_id ASC
+                LIMIT %s
+                """,
+                (user_norm, user_norm, user_norm, top_k),
+            )
+            return cur.fetchall() or []
+
+    def _vector_search(self, conn, user_embedding: Optional[List[float]], top_k: int) -> List[Dict]:
+        if not user_embedding:
+            return []
+        vector_literal = to_pgvector(user_embedding)
+        if not vector_literal:
+            return []
+        with conn.cursor() as cur:
+            cur.execute("SET ivfflat.probes = %s", (max(1, min(10, top_k * 2)),))
+            cur.execute(
+                """
+                SELECT i.intent_name,
+                       p.prompt_id,
+                       p.prompt_text,
+                       p.prompt_norm,
+                       a.answer_text,
+                       GREATEST(0.0, 1 - (p.embedding <=> %s::vector))::float AS confidence,
+                       'VECTOR'::text AS retrieval_mode
+                FROM prompts p
+                JOIN intents i ON i.intent_id = p.intent_id
+                JOIN answers a ON a.intent_id = p.intent_id
+                WHERE p.embedding IS NOT NULL
+                ORDER BY p.embedding <=> %s::vector
+                LIMIT %s
+                """,
+                (vector_literal, vector_literal, top_k),
+            )
+            return cur.fetchall() or []
+
+    def search(self, user_text: str, user_embedding: Optional[List[float]] = None, top_k: int = 3) -> List[Dict]:
+        user_norm = normalize_vi(user_text)
+        if not user_norm and not user_embedding:
+            return []
+
+        exact_hit = self.keyword_fallback(user_norm)
+        conn = db.connect()
+        try:
+            fts_hits = self._fts_search(conn, user_norm, top_k=top_k)
+            vector_hits = self._vector_search(conn, user_embedding, top_k=top_k)
+        finally:
+            conn.close()
+
+        merged: Dict[str, Dict] = {}
+
+        def _merge(item: Dict, bonus: float = 0.0):
+            if not item:
+                return
+            key = f"{item.get('intent_name')}::{item.get('answer_text')}"
+            score = float(item.get("confidence") or 0.0) + bonus
+            if key not in merged:
+                merged[key] = {**item, "confidence": min(1.0, score)}
+                return
+            prev = merged[key]
+            prev_score = float(prev.get("confidence") or 0.0)
+            retrieval_modes = {prev.get("retrieval_mode", "")} | {item.get("retrieval_mode", "")}
+            merged[key] = {
+                **prev,
+                **item,
+                "confidence": min(1.0, max(prev_score, score) + (0.05 if len(retrieval_modes) > 1 else 0.0)),
+                "retrieval_mode": "+".join(sorted([m for m in retrieval_modes if m])),
+            }
+
+        _merge(exact_hit, bonus=0.10)
+        for row in fts_hits:
+            _merge(row)
+        for row in vector_hits:
+            _merge(row)
+
+        ordered = sorted(merged.values(), key=lambda x: (x.get("confidence", 0.0), x.get("prompt_id", 0)), reverse=True)
+        return ordered[:top_k]
 
     def match(self, user_embedding: List[float], user_text: str, threshold: float = 0.78) -> Optional[Dict]:
-        user_norm = normalize_vi(user_text)
-
-        # 1) keyword exact fallback
-        hit = self.keyword_fallback(user_norm)
-        if hit:
-            return hit
-
-        # 2) embedding similarity
-        best = None
-        best_score = -1.0
-        for it in self.items:
-            emb = it.get("embedding")
-            if not emb:
-                continue
-            s = cosine(user_embedding, emb)
-            if s > best_score:
-                best_score = s
-                best = it
-
-        if best and best_score >= threshold:
-            return {**best, "confidence": float(best_score)}
-
+        results = self.search(user_text=user_text, user_embedding=user_embedding, top_k=1)
+        if results and float(results[0].get("confidence", 0.0)) >= threshold:
+            return results[0]
         return None
-
