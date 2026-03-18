@@ -66,3 +66,33 @@ lệnh chạy test camera bằng tool invdia:
 nvgstcapture-1.0
 ```
 
+lệnh khởi động sever postgre:
+
+```bash
+sudo -u postgres /usr/local/pgsql16/bin/pg_ctl \
+  -D /usr/local/pgsql16/data \
+  -l /usr/local/pgsql16/data/logfile start
+```
+
+lệnh khởi động test sever postgre:
+
+```bash
+sudo -u postgres /usr/local/pgsql16/bin/pg_ctl \
+  -D /usr/local/pgsql16/data status
+```
+lệnh khởi động chạy backend sau khi chạy sever database postgre:
+
+```bash
+cd ~/elevator_ai_project
+
+export PATH=/usr/local/pgsql16/bin:$PATH
+export PGHOST=localhost
+export PGPORT=5432
+export PGUSER=elevator_ai
+export PGPASSWORD=elevator123
+export PGDATABASE=elevator_ai_pg
+export DB_BACKEND=postgres
+export PYTHONPATH=$PWD
+
+uvicorn backend.api:app --host 0.0.0.0 --port 8000
+```
